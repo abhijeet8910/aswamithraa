@@ -1,0 +1,118 @@
+import { useState, useEffect } from "react";
+import { Menu, X, Wheat } from "lucide-react";
+import { UserRole } from "@/context/AuthContext";
+
+interface NavbarProps {
+  onSelectRole: (role: UserRole | null) => void;
+}
+
+const navItems: { name: string; role: UserRole | null }[] = [
+  { name: "Home", role: null },
+  { name: "Farmer", role: "farmer" },
+  { name: "Business", role: "b2b" },
+  { name: "Customer", role: "customer" },
+  { name: "Admin", role: "admin" },
+];
+
+const Navbar: React.FC<NavbarProps> = ({ onSelectRole }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  const handleClick = (role: UserRole | null) => {
+    onSelectRole(role);
+    setIsOpen(false);
+  };
+
+  // 🔥 Add shadow + blur when scrolling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header
+      className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+        scrolled
+          ? "bg-green-900/80 backdrop-blur-lg shadow-xl"
+          : "bg-transparent"
+      }`}
+    >
+      <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        {/* Logo */}
+        <div
+          onClick={() => handleClick(null)}
+          className="flex items-center gap-3 cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center shadow-md transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+            <Wheat className="w-5 h-5 text-white" />
+          </div>
+
+          <div className="leading-tight">
+            <h1 className="text-lg font-bold text-white tracking-wide">
+              ASWAMITHRA
+            </h1>
+            <p className="text-xs text-yellow-300">
+              Agricultural Marketplace
+            </p>
+          </div>
+        </div>
+
+        {/* Desktop Menu */}
+        <div className="hidden lg:flex items-center gap-10">
+          {navItems.map((item) => (
+            <button
+              key={item.name}
+              onClick={() => handleClick(item.role)}
+              className="relative text-white text-base font-medium transition duration-300 group"
+            >
+              {item.name}
+
+              {/* Animated underline */}
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+            </button>
+          ))}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="text-white transition-transform duration-300 hover:scale-110"
+          >
+            {isOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Dropdown Animated */}
+      <div
+        className={`lg:hidden overflow-hidden transition-all duration-500 ${
+          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="bg-white/95 backdrop-blur-md px-6 py-6 space-y-6 shadow-lg">
+          {navItems.map((item) => (
+            <button
+              key={item.name}
+              onClick={() => handleClick(item.role)}
+              className="block w-full text-left text-lg font-medium hover:text-green-600 transition"
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Navbar;
