@@ -23,7 +23,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectRole }) => {
     setIsOpen(false);
   };
 
-  // 🔥 Add shadow + blur when scrolling
+  // Scroll Effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -37,18 +37,17 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectRole }) => {
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-green-900/80 backdrop-blur-lg shadow-xl"
-          : "bg-transparent"
+          ? "bg-green-900/90 backdrop-blur-xl shadow-2xl"
+          : ""
       }`}
     >
       <nav className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-
         {/* Logo */}
         <div
           onClick={() => handleClick(null)}
           className="flex items-center gap-3 cursor-pointer group"
         >
-          <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center shadow-md transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+          <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center shadow-md transition-all duration-300 group-hover:rotate-12 group-hover:scale-110">
             <Wheat className="w-5 h-5 text-white" />
           </div>
 
@@ -93,18 +92,18 @@ const Navbar: React.FC<NavbarProps> = ({ onSelectRole }) => {
         </div>
       </nav>
 
-      {/* Mobile Dropdown Animated */}
+      {/* Mobile Dropdown */}
       <div
         className={`lg:hidden overflow-hidden transition-all duration-500 ${
           isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
-        <div className="bg-white/95 backdrop-blur-md px-6 py-6 space-y-6 shadow-lg">
+        <div className="bg-green-900/95 backdrop-blur-xl px-6 py-6 space-y-6 shadow-2xl border-t border-green-700">
           {navItems.map((item) => (
             <button
               key={item.name}
               onClick={() => handleClick(item.role)}
-              className="block w-full text-left text-lg font-medium hover:text-green-600 transition"
+              className="block w-full text-left text-lg font-medium text-white hover:text-yellow-400 transition duration-300"
             >
               {item.name}
             </button>
