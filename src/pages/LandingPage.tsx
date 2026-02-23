@@ -205,6 +205,8 @@ import Navbar from "./landingPage/Navbar";
 import HowItWorks from "./landingPage/HowItWorks";
 import FarmerSection from "./landingPage/FarmerSection";
 import Footer from "./landingPage/Footer";
+import AboutUs from "./landingPage/AboutUs";
+import WhyChooseUs from "./landingPage/WhyChooseUs";
 
 const landingPage: React.FC = () => {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
@@ -221,12 +223,17 @@ const landingPage: React.FC = () => {
   return (
     <div>
       <div className="min-h-screen bg-background ">
-      <Navbar onSelectRole={setSelectedRole} />
-      <Hero onSelectRole={setSelectedRole} />
+      {/* <Navbar onSelectRole={setSelectedRole} />
+      <Hero onSelectRole={setSelectedRole} /> */}
+      <Navbar/>
+      <Hero/>
+      
 
     </div>
     <HowItWorks/>
     <FarmerSection onSelectRole={setSelectedRole}/>
+    <AboutUs/>
+    <WhyChooseUs/>
     <Footer onSelectRole={setSelectedRole}/>
     </div>
     

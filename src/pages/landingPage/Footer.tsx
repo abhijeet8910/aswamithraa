@@ -57,9 +57,7 @@ export default function Footer({ onSelectRole }: FooterProps) {
         <div>
           <h4 className="text-white mb-4 font-semibold">Support</h4>
           <ul className="space-y-3 text-sm">
-            <li className="hover:text-green-400 transition duration-300 cursor-pointer">
-              Help Center
-            </li>
+          
             <li className="hover:text-green-400 transition duration-300 cursor-pointer">
               Contact Us
             </li>

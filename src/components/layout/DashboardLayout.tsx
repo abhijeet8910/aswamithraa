@@ -48,6 +48,7 @@ const adminNav: NavItem[] = [
   { label: "Farmers", icon: Wheat, id: "farmers" },
   { label: "Businesses", icon: Building2, id: "businesses" },
   { label: "Customers", icon: Users, id: "customers" },
+  {label: "Delivery", icon: Truck, id: "delivery"},
   { label: "Transactions", icon: CreditCard, id: "transactions" },
   { label: "Analytics", icon: BarChart3, id: "analytics" },
   { label: "Reports", icon: FileText, id: "reports" },

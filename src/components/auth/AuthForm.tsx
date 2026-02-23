@@ -4,6 +4,8 @@ import { Eye, EyeOff, Phone, Mail, Lock, User, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
+
 
 interface AuthFormProps {
   role: UserRole;
@@ -44,6 +46,8 @@ const roleConfig = {
 type AuthMode = "login" | "register";
 
 const AuthForm: React.FC<AuthFormProps> = ({ role, onBack }) => {
+const navigate = useNavigate();
+
   const { login } = useAuth();
   const [mode, setMode] = useState<AuthMode>("login");
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +59,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ role, onBack }) => {
     e.preventDefault();
     const name = form.name || (role === "admin" ? "Admin User" : `${config.label} User`);
     login(role, name);
+    navigate(`/${role}/dashboard`);
   };
 
   const handleChange = (field: string, value: string) => {

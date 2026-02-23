@@ -1,37 +1,41 @@
+
+
 import React from "react";
-import { UserRole } from "@/context/AuthContext";
-import { Wheat, Building2, ShoppingCart, Shield } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Wheat, Building2, ShoppingCart, Contact2Icon } from "lucide-react";
 import heroFarm from "@/assets/hero-farm.jpg";
 
-interface HeroProps {
-  onSelectRole: (role: UserRole) => void;
-}
+const Hero: React.FC = () => {
+  const navigate = useNavigate();
 
-const Hero: React.FC<HeroProps> = ({ onSelectRole }) => {
   const loginButtons = [
     {
-      id: "farmer" as UserRole,
+      id: "farmer",
       label: "Farmer Login",
       icon: Wheat,
       color: "bg-green-600 hover:bg-green-700",
+      path: "/farmer",
     },
     {
-      id: "b2b" as UserRole,
+      id: "b2b",
       label: "Business Login",
       icon: Building2,
-      color: "bg-blue-600 hover:bg-blue-700",
+      color: "bg-emerald-600 hover:bg-emerald-700",
+      path: "/b2b",
     },
     {
-      id: "customer" as UserRole,
+      id: "customer",
       label: "Customer Login",
       icon: ShoppingCart,
       color: "bg-emerald-600 hover:bg-emerald-700",
+      path: "/customer",
     },
     {
-      id: "admin" as UserRole,
-      label: "Admin Login",
-      icon: Shield,
-      color: "bg-red-600 hover:bg-red-700",
+      id: "Contact",
+      label: "Contact Page",
+      icon: Contact2Icon,
+      color: "bg-green-600 hover:bg-green-700",
+      path: "/contact",
     },
   ];
 
@@ -44,7 +48,6 @@ const Hero: React.FC<HeroProps> = ({ onSelectRole }) => {
 
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
-      {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroFarm})` }}
@@ -52,20 +55,8 @@ const Hero: React.FC<HeroProps> = ({ onSelectRole }) => {
       <div className="absolute inset-0 bg-gradient-to-br from-green-900/90 to-green-800/70" />
 
       <div className="relative max-w-6xl mx-auto px-4 py-20 w-full">
-        {/* Logo */}
-        {/* <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-yellow-500 flex items-center justify-center">
-            <Wheat className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white">ASWAMITHRA</h1>
-            <p className="text-xs text-yellow-300">Agricultural Marketplace</p>
-          </div>
-        </div> */}
-
-        {/* Hero Content */}
         <div className="max-w-2xl">
-          <h2 className="text-4xl lg:text-6xl font-bold text-white leading-tight mb-6">
+          <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6">
             Connecting Farmers
             <span className="block text-yellow-400">
               Directly to Markets
@@ -84,8 +75,8 @@ const Hero: React.FC<HeroProps> = ({ onSelectRole }) => {
               return (
                 <button
                   key={btn.id}
-                  onClick={() => onSelectRole(btn.id)}
-                  className={`flex items-center justify-center gap-2 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg ${btn.color}`}
+                  onClick={() => navigate(btn.path)}
+                  className={`flex items-center justify-center gap-2 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:border hover:border-yellow-400 ${btn.color}`}
                 >
                   <Icon className="w-5 h-5" />
                   {btn.label}
