@@ -1,150 +1,302 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Plus } from "lucide-react";
 
-export default function FarmerProducts() {
-  const [open, setOpen] = useState(false);
+type ProductStatus = "Available" | "Low Stock" | "Out of Stock";
+
+type Product = {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  price: string;
+  status: ProductStatus;
+};
+
+const categories = ["Vegetables", "Fruits", "Grains", "Dairy", "Other"];
+
+const units = ["Gram", "KG", "Litre", "Quintal"];
+
+const initialProducts: Product[] = [
+  {
+    id: "1",
+    name: "Tomatoes",
+    category: "Vegetables",
+    quantity: 50,
+    unit: "KG",
+    price: "₹40/kg",
+    status: "Available",
+  },
+  {
+    id: "2",
+    name: "Potatoes",
+    category: "Vegetables",
+    quantity: 20,
+    unit: "KG",
+    price: "₹30/kg",
+    status: "Low Stock",
+  },
+];
+
+function statusBadge(status: ProductStatus) {
+  const styles = {
+    Available: "bg-green-100 text-green-700",
+    "Low Stock": "bg-yellow-100 text-yellow-700",
+    "Out of Stock": "bg-red-100 text-red-700",
+  };
 
   return (
-    <div className="space-y-8">
+    <span className={`px-2 py-1 text-xs rounded-md ${styles[status]}`}>
+      {status}
+    </span>
+  );
+}
+
+export default function FarmerProducts() {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [open, setOpen] = useState(false);
+  const [customCategory, setCustomCategory] = useState("");
+
+  const [form, setForm] = useState<Product>({
+    id: "",
+    name: "",
+    category: "",
+    quantity: 0,
+    unit: "KG",
+    price: "",
+    status: "Available",
+  });
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    const category =
+      form.category === "Other" ? customCategory : form.category;
+
+    const newProduct = { ...form, category };
+
+    if (editingId) {
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === editingId ? { ...newProduct, id: editingId } : p
+        )
+      );
+    } else {
+      setProducts((prev) => [
+        ...prev,
+        { ...newProduct, id: Date.now().toString() },
+      ]);
+    }
+
+    setOpen(false);
+    setEditingId(null);
+    setCustomCategory("");
+  };
+
+  const handleDelete = (id: string) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleEdit = (product: Product) => {
+    setForm(product);
+    setEditingId(product.id);
+    setOpen(true);
+  };
+
+  return (
+    <div className="space-y-6">
+
       {/* Header */}
+
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">My Products</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage your farm inventory
+          <h1 className="text-2xl font-bold">Product Management</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your agricultural products
           </p>
         </div>
 
         <button
-          onClick={() => setOpen(true)}
-          className="px-4 py-2 bg-primary text-white rounded-xl text-sm hover:opacity-90 transition"
+          onClick={() => {
+            setOpen(true);
+            setEditingId(null);
+          }}
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg"
         >
-          + Add Product
+          <Plus size={16} />
+          Add Product
         </button>
       </div>
 
       {/* Products Table */}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+
+      <div className="bg-card border rounded-xl overflow-x-auto">
+
         <table className="w-full">
+
           <thead className="bg-muted">
             <tr>
-              {["Name", "Category", "Stock", "Price", "Status"].map((h) => (
-                <th key={h} className="px-6 py-4 text-left text-xs text-muted-foreground">
-                  {h}
-                </th>
-              ))}
+              {["Name", "Category", "Stock", "Price", "Status", "Actions"].map(
+                (h) => (
+                  <th key={h} className="text-left px-5 py-3 text-xs">
+                    {h}
+                  </th>
+                )
+              )}
             </tr>
           </thead>
+
           <tbody>
-            <tr className="hover:bg-muted/40 transition">
-              <td className="px-6 py-4 font-medium">Tomatoes</td>
-              <td className="px-6 py-4">Vegetables</td>
-              <td className="px-6 py-4">120kg</td>
-              <td className="px-6 py-4 font-semibold">₹35/kg</td>
-              <td className="px-6 py-4 text-primary">Available</td>
-            </tr>
+            {products.map((p) => (
+              <tr key={p.id} className="border-t">
+
+                <td className="px-5 py-3">{p.name}</td>
+
+                <td className="px-5 py-3">{p.category}</td>
+
+                <td className="px-5 py-3">
+                  {p.quantity} {p.unit}
+                </td>
+
+                <td className="px-5 py-3">{p.price}</td>
+
+                <td className="px-5 py-3">
+                  {statusBadge(p.status)}
+                </td>
+
+                <td className="px-5 py-3 flex gap-2">
+
+                  <button
+                    onClick={() => handleEdit(p)}
+                    className="px-3 py-1 text-xs bg-blue-500 text-white rounded"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="px-3 py-1 text-xs bg-red-500 text-white rounded"
+                  >
+                    Delete
+                  </button>
+
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* Add Product Modal */}
+      {/* Modal */}
+
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-card w-full max-w-lg rounded-2xl border border-border shadow-xl p-6 relative">
-            
-            {/* Close Button */}
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 relative">
+
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+              className="absolute right-4 top-4"
             >
-              <X className="w-5 h-5" />
+              <X size={18} />
             </button>
 
-            <h2 className="text-xl font-semibold mb-6">
-              Add New Product
-            </h2>
+            <h3 className="text-lg font-semibold mb-4">
+              {editingId ? "Edit Product" : "Add Product"}
+            </h3>
 
-            <form className="space-y-4">
-              
-              {/* Product Name */}
-              <div>
-                <label className="text-sm font-medium">Product Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter product name"
-                  className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
+            <form
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
 
-              {/* Category */}
-              <div>
-                <label className="text-sm font-medium">Category</label>
-                <select className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary">
-                  <option>Vegetables</option>
-                  <option>Grains</option>
-                  <option>Spices</option>
-                  <option>Fruits</option>
-                </select>
-              </div>
+              <input
+                name="name"
+                placeholder="Product Name"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
+              />
 
-              {/* Quantity */}
-              <div>
-                <label className="text-sm font-medium">Quantity (kg)</label>
-                <input
-                  type="number"
-                  placeholder="Enter quantity"
-                  className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Price */}
-              <div>
-                <label className="text-sm font-medium">Price per kg</label>
-                <input
-                  type="number"
-                  placeholder="Enter price"
-                  className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="text-sm font-medium">Status</label>
-                <select className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary">
-                  <option>Available</option>
-                  <option>Low Stock</option>
-                  <option>Out of Stock</option>
-                </select>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="text-sm font-medium">Description</label>
-                <textarea
-                  rows={3}
-                  placeholder="Write product description..."
-                  className="w-full mt-1 px-4 py-2 border border-border rounded-xl bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Image Upload */}
-              <div>
-                <label className="text-sm font-medium">Product Image</label>
-                <input
-                  type="file"
-                  className="w-full mt-1 text-sm"
-                />
-              </div>
-
-              {/* Submit */}
-              <button
-                type="submit"
-                className="w-full mt-4 bg-primary text-white py-2 rounded-xl hover:opacity-90 transition"
+              <select
+                name="category"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
               >
-                Save Product
-              </button>
+                <option>Select Category</option>
+
+                {categories.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+
+              {form.category === "Other" && (
+                <input
+                  placeholder="Add Category"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  className="border rounded-lg px-4 py-2 md:col-span-2"
+                />
+              )}
+
+              <input
+                name="quantity"
+                type="number"
+                placeholder="Quantity"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
+              />
+
+              <select
+                name="unit"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
+              >
+                {units.map((u) => (
+                  <option key={u}>{u}</option>
+                ))}
+              </select>
+
+              <input
+                name="price"
+                placeholder="Price"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
+              />
+
+              <select
+                name="status"
+                onChange={handleChange}
+                className="border rounded-lg px-4 py-2"
+              >
+                <option>Available</option>
+                <option>Low Stock</option>
+                <option>Out of Stock</option>
+              </select>
+
+              <div className="md:col-span-2 flex justify-end">
+
+                <button
+                  type="submit"
+                  className="bg-primary text-white px-6 py-2 rounded-lg"
+                >
+                  Save Product
+                </button>
+
+              </div>
 
             </form>
+
           </div>
         </div>
       )}

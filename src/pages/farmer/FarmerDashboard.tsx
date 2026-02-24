@@ -5,8 +5,14 @@ import {
   ArrowDownRight, Star, MapPin, Wheat, CheckCircle, Clock, AlertCircle
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import FarmerProducts from "./components/FarmerProducts";
+import FarmerOrders from "./components/FarmerOrders";
+import FarmerPayments from "./components/FarmerPayments";
+import FarmerAnalytics from "./components/FarmerAnalytics";
+import FarmerNotification from "./components/FarmerNotification";
+import FarmerSettings from "./components/FarmerSettings";
 
-const earningsData = [
+export const earningsData = [
   { month: "Aug", aswamithra: 18500, traditional: 12000 },
   { month: "Sep", aswamithra: 22000, traditional: 14500 },
   { month: "Oct", aswamithra: 19800, traditional: 13200 },
@@ -22,14 +28,14 @@ const notifications = [
   { type: "pending", icon: Clock, color: "hsl(var(--muted-foreground))", title: "Order Pending", desc: "B2B order awaiting your confirmation", time: "3 hr ago" },
 ];
 
-const products = [
+export const products = [
   { name: "Tomatoes", qty: "120 kg", price: "₹35/kg", status: "Available", category: "Vegetables" },
   { name: "Basmati Rice", qty: "500 kg", price: "₹68/kg", status: "Low Stock", category: "Grains" },
   { name: "Onions", qty: "0 kg", price: "₹28/kg", status: "Out of Stock", category: "Vegetables" },
   { name: "Turmeric", qty: "80 kg", price: "₹95/kg", status: "Available", category: "Spices" },
 ];
 
-const statusBadge = (status: string) => {
+export const statusBadge = (status: string) => {
   if (status === "Available") return <span className="badge-success">{status}</span>;
   if (status === "Low Stock") return <span className="badge-warning">{status}</span>;
   return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">{status}</span>;
@@ -200,278 +206,28 @@ const FarmerDashboard: React.FC = () => {
 
 {/* products section */}
 {activeTab === "products" && (
-  <div className="space-y-6">
-
-    {/* Header */}
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Product Management
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Manage your listed agricultural products
-      </p>
-    </div>
-
-    {/* Stats */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {[
-        { label: "Total Products", value: "12" },
-        { label: "Available", value: "8" },
-        { label: "Low Stock", value: "3" },
-        { label: "Out of Stock", value: "1" },
-      ].map((item) => (
-        <div key={item.label} className="bg-card border border-border rounded-xl p-4">
-          <div className="text-xl font-bold">{item.value}</div>
-          <div className="text-xs text-muted-foreground">
-            {item.label}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    {/* Add Product Form (MVP Simple Version) */}
-    <div className="bg-card border border-border rounded-xl p-6">
-      <h3 className="font-semibold mb-4">Add New Product</h3>
-
-      <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-        <input
-          type="text"
-          placeholder="Product Name"
-          className="px-4 py-2 border rounded-lg bg-background"
-        />
-
-        <input
-          type="text"
-          placeholder="Category"
-          className="px-4 py-2 border rounded-lg bg-background"
-        />
-
-        <input
-          type="text"
-          placeholder="Stock (e.g. 50kg)"
-          className="px-4 py-2 border rounded-lg bg-background"
-        />
-
-        <input
-          type="text"
-          placeholder="Price (₹/kg)"
-          className="px-4 py-2 border rounded-lg bg-background"
-        />
-
-        <select className="px-4 py-2 border rounded-lg bg-background">
-          <option>Status</option>
-          <option>Available</option>
-          <option>Low Stock</option>
-          <option>Out of Stock</option>
-        </select>
-
-        <input
-          type="file"
-          className="px-4 py-2 border rounded-lg bg-background"
-        />
-
-        <div className="md:col-span-2 flex justify-end">
-          <button
-            type="button"
-            className="px-6 py-2 rounded-lg bg-primary text-white hover:opacity-90"
-          >
-            Add Product
-          </button>
-        </div>
-      </form>
-    </div>
-
-    {/* Products Table */}
-    <div className="bg-card rounded-xl border border-border overflow-x-auto">
-      <div className="p-5 border-b border-border">
-        <h3 className="font-semibold text-foreground">All Products</h3>
-      </div>
-
-      <table className="w-full min-w-[600px]">
-        <thead className="bg-muted">
-          <tr>
-            {["Name", "Category", "Stock", "Price", "Status", "Actions"].map((h) => (
-              <th
-                key={h}
-                className="text-left px-5 py-3 text-xs text-muted-foreground"
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.name} className="border-t">
-              <td className="px-5 py-3 text-sm font-medium">{p.name}</td>
-              <td className="px-5 py-3">{p.category}</td>
-              <td className="px-5 py-3">{p.qty}</td>
-              <td className="px-5 py-3 font-semibold">{p.price}</td>
-              <td className="px-5 py-3">{statusBadge(p.status)}</td>
-
-              {/* Actions */}
-              <td className="px-5 py-3 flex gap-2">
-                <button className="px-3 py-1 text-xs rounded-md bg-blue-500 text-white">
-                  Edit
-                </button>
-                <button className="px-3 py-1 text-xs rounded-md bg-red-500 text-white">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <FarmerProducts/>
 )}
 {/* orders section  */}
 {activeTab === "orders" && (
-  <div className="space-y-6">
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Orders
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Track incoming and completed orders
-      </p>
-    </div>
-
-    {/* Order Stats */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {[
-        { label: "Total Orders", value: "156" },
-        { label: "Pending", value: "12" },
-        { label: "Completed", value: "132" },
-        { label: "Cancelled", value: "12" },
-      ].map((item) => (
-        <div key={item.label} className="stat-card">
-          <div className="text-2xl font-bold">{item.value}</div>
-          <div className="text-xs text-muted-foreground">
-            {item.label}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div className="bg-card rounded-xl border border-border p-5">
-      <h3 className="font-semibold mb-4">Recent Orders</h3>
-      <div className="space-y-3">
-        {[
-          { id: "#ORD001", buyer: "Ramesh", amount: "₹4,250", status: "Pending" },
-          { id: "#ORD002", buyer: "Lakshmi Traders", amount: "₹12,800", status: "Completed" },
-        ].map((o) => (
-          <div key={o.id} className="flex justify-between p-4 rounded-lg bg-muted/50">
-            <div>
-              <div className="font-medium">{o.id}</div>
-              <div className="text-xs text-muted-foreground">
-                Buyer: {o.buyer}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-semibold">{o.amount}</div>
-              <div className="text-xs text-muted-foreground">
-                {o.status}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
+  <FarmerOrders/>
 )}
 
 {/* payment section */}
 {activeTab === "payments" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold text-foreground">
-      Payments
-    </h1>
-
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-      {[
-        { label: "Total Earned", value: "₹1,84,000" },
-        { label: "Pending", value: "₹12,400" },
-        { label: "This Month", value: "₹28,900" },
-      ].map((item) => (
-        <div key={item.label} className="stat-card">
-          <div className="text-2xl font-bold">{item.value}</div>
-          <div className="text-xs text-muted-foreground">
-            {item.label}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div className="bg-card rounded-xl border border-border p-5">
-      <h3 className="font-semibold mb-4">Recent Transactions</h3>
-      <div className="space-y-3">
-        {[
-          { id: "TXN001", method: "UPI", amount: "₹4,250" },
-          { id: "TXN002", method: "Bank Transfer", amount: "₹12,800" },
-        ].map((t) => (
-          <div key={t.id} className="flex justify-between p-4 bg-muted/50 rounded-lg">
-            <div>
-              <div className="font-medium">{t.id}</div>
-              <div className="text-xs text-muted-foreground">
-                {t.method}
-              </div>
-            </div>
-            <div className="font-semibold">{t.amount}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
+  <FarmerPayments/>
 )}
 {/* Analytics Section */}
 {activeTab === "analytics" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold text-foreground">
-      Sales Analytics
-    </h1>
-
-    <div className="bg-card rounded-xl border border-border p-6">
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={earningsData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="aswamithra" fill="hsl(var(--primary))" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
+  <FarmerAnalytics/>
 )}
 {/* Notification Section */}
 {activeTab === "notifications" && (
-  <div className="space-y-8">
-  <h1 className="text-2xl font-bold flex items-center gap-2">
-    <Bell className="w-5 h-5 text-primary" />
-    Notifications
-  </h1>
+  <FarmerNotification/>
+)}
 
-  <div className="bg-card border border-border rounded-2xl divide-y">
-    {[
-      "50kg Tomatoes sold successfully",
-      "Payment of ₹4,250 received",
-      "Low stock alert for Rice",
-    ].map((note, i) => (
-      <div
-        key={i}
-        className="p-5 hover:bg-muted/40 transition cursor-pointer"
-      >
-        <div className="text-sm">{note}</div>
-        <div className="text-xs text-muted-foreground mt-1">
-          2 hours ago
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
+{activeTab === 'settings' && (
+  <FarmerSettings/>
 )}
 
     

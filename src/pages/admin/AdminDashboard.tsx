@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import DeliveryManagement from "./component/DeliveryManagement";
+import Farmers from "./component/Farmers";
 
 const transactionTrend = [
   { month: "Aug", volume: 1240000, count: 342 },
@@ -23,7 +24,7 @@ const categoryPie = [
   { name: "Fruits", value: 12 },
 ];
 // ---------------- FARMERS ----------------
-const farmersData = [
+export const farmersData = [
   { id: "F-1001", name: "Ramu Reddy", location: "Telangana", products: 12, joined: "Oct 2025", status: "Approved", earnings: "₹2,45,000" },
   { id: "F-1002", name: "Lakshmi Bai", location: "Maharashtra", products: 8, joined: "Nov 2025", status: "Pending", earnings: "₹1,12,000" },
   { id: "F-1003", name: "Govind Rao", location: "Karnataka", products: 15, joined: "Sep 2025", status: "Suspended", earnings: "₹3,01,000" },
@@ -270,58 +271,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* famers section */}
       {activeTab === "farmers" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Farmers Management</h1>
-
-    {/* Quick Stats */}
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div className="stat-card">
-        <div className="text-xl font-bold">{farmersData.length}</div>
-        <div className="text-xs text-muted-foreground">Total Farmers</div>
-      </div>
-      <div className="stat-card">
-        <div className="text-xl font-bold">
-          {farmersData.filter(f => f.status === "Approved").length}
-        </div>
-        <div className="text-xs text-muted-foreground">Approved</div>
-      </div>
-    </div>
-
-    {/* Table */}
-    <div className="bg-card border border-border rounded-xl overflow-x-auto">
-      <table className="w-full min-w-[900px]">
-        <thead className="bg-muted">
-          <tr>
-            {["ID", "Name", "Location", "Products", "Earnings", "Status"].map((h) => (
-              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {farmersData.map((f) => (
-            <tr key={f.id} className="data-table-row">
-              <td className="px-5 py-3 text-xs font-mono">{f.id}</td>
-              <td className="px-5 py-3 font-medium">{f.name}</td>
-              <td className="px-5 py-3">{f.location}</td>
-              <td className="px-5 py-3">{f.products}</td>
-              <td className="px-5 py-3 font-semibold">{f.earnings}</td>
-              <td className="px-5 py-3">
-                <span className={
-                  f.status === "Approved"
-                    ? "badge-success"
-                    : f.status === "Pending"
-                    ? "badge-warning"
-                    : "badge-destructive"
-                }>
-                  {f.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <Farmers/>
 )}
 
 {/* business section */}

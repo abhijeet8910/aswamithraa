@@ -5,8 +5,14 @@ import {
   ArrowUpRight, MapPin, CheckCircle, Clock, BarChart3
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+import Products from "./components/Products";
+import Orders from "./components/Orders";
+import Payments from "./components/Payments";
+import Delivery from "./components/Delivery";
+import Analytics from "./components/Analytics";
+import Settings from "./components/Settings";
 
-const procurementData = [
+export const procurementData = [
   { month: "Aug", spend: 145000, orders: 12 },
   { month: "Sep", spend: 188000, orders: 16 },
   { month: "Oct", spend: 162000, orders: 14 },
@@ -15,14 +21,14 @@ const procurementData = [
   { month: "Jan", spend: 228000, orders: 20 },
 ];
 
-const recentOrders = [
+export const recentOrders = [
   { id: "ORD-2401", product: "Basmati Rice", qty: "2000 kg", farmer: "Ramu Reddy, Nalgonda", amount: "₹1,36,000", status: "Delivered", date: "Jan 18" },
   { id: "ORD-2398", product: "Tomatoes", qty: "500 kg", farmer: "Suresh Kumar, Warangal", amount: "₹17,500", status: "In Transit", date: "Jan 20" },
   { id: "ORD-2392", product: "Turmeric", qty: "200 kg", farmer: "Lakshmi Bai, Nizamabad", amount: "₹19,000", status: "Confirmed", date: "Jan 22" },
   { id: "ORD-2390", product: "Onions", qty: "1000 kg", farmer: "Govind Rao, Adilabad", amount: "₹28,000", status: "Pending", date: "Jan 23" },
 ];
 
-const orderStatus = (status: string) => {
+export const orderStatus = (status: string) => {
   if (status === "Delivered") return <span className="badge-success">{status}</span>;
   if (status === "In Transit") return <span className="badge-info">{status}</span>;
   if (status === "Confirmed") return <span className="badge-warning">{status}</span>;
@@ -163,164 +169,27 @@ const B2BDashboard: React.FC = () => {
 
      {/* Orders section */}
      {activeTab === "orders" && (
-  <div className="space-y-6">
-    <div className="flex justify-between items-center">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">
-          Order Management
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Track and manage procurement orders
-        </p>
-      </div>
-      <button className="px-4 py-2 bg-primary text-white rounded-lg text-sm">
-        + Create Order
-      </button>
-    </div>
-
-    <div className="bg-card rounded-xl border border-border overflow-x-auto">
-      <table className="w-full min-w-[700px]">
-        <thead className="bg-muted">
-          <tr>
-            {["Order ID", "Supplier", "Product", "Amount", "Status"].map((h) => (
-              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {recentOrders.map((o) => (
-            <tr key={o.id} className="data-table-row">
-              <td className="px-5 py-3">{o.id}</td>
-              <td className="px-5 py-3">{o.farmer}</td>
-              <td className="px-5 py-3">{o.product}</td>
-              <td className="px-5 py-3 font-semibold">{o.amount}</td>
-              <td className="px-5 py-3">{orderStatus(o.status)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <Orders/>
 )}
 {/* products section */}
 {activeTab === "products" && (
-  <div className="space-y-6">
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Product Discovery
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Explore available farm products for bulk purchase
-      </p>
-    </div>
-
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {[
-        { name: "Basmati Rice", farmer: "Ramu Reddy", price: "₹68/kg", stock: "12,000kg" },
-        { name: "Turmeric", farmer: "Lakshmi Bai", price: "₹95/kg", stock: "2,800kg" },
-        { name: "Tomatoes", farmer: "Suresh Kumar", price: "₹35/kg", stock: "5,200kg" },
-      ].map((p) => (
-        <div key={p.name} className="bg-card border border-border rounded-xl p-5">
-          <h3 className="font-semibold text-foreground">{p.name}</h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            Supplier: {p.farmer}
-          </p>
-          <div className="mt-4 text-sm">
-            <div>Stock: {p.stock}</div>
-            <div className="font-semibold text-primary mt-1">
-              {p.price}
-            </div>
-          </div>
-          <button className="mt-4 w-full py-2 bg-primary text-white rounded-lg text-sm">
-            Place Bulk Order
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
+  <Products/>
 )}
 {/* payments section */}
 {activeTab === "payments" && (
-  <div className="space-y-6">
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Payments
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Track settlements and transaction history
-      </p>
-    </div>
-
-    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-      {recentOrders.map((p) => (
-        <div key={p.id} className="flex justify-between items-center border-b border-border pb-3 last:border-none">
-          <div>
-            <div className="text-sm font-medium">{p.product}</div>
-            <div className="text-xs text-muted-foreground">{p.date}</div>
-          </div>
-          <div className="text-right">
-            <div className="font-semibold">{p.amount}</div>
-            <div className="text-xs text-muted-foreground">Paid</div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+  <Payments/>
+  )}
 
 {/* delivery section */}
 {activeTab === "delivery" && (
-  <div className="space-y-6">
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Delivery Tracking
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Monitor shipment and logistics updates
-      </p>
-    </div>
-
-    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-      {recentOrders.map((d) => (
-        <div key={d.id} className="flex items-center justify-between">
-          <div>
-            <div className="font-medium text-sm">{d.product}</div>
-            <div className="text-xs text-muted-foreground">
-              ETA: 2 days
-            </div>
-          </div>
-          <span className="badge-info">{d.status}</span>
-        </div>
-      ))}
-    </div>
-  </div>
+  <Delivery/>
 )}
 {/* analytics seciton */}
 {activeTab === "analytics" && (
-  <div className="space-y-6">
-    <div>
-      <h1 className="font-display text-2xl font-bold text-foreground">
-        Procurement Analytics
-      </h1>
-      <p className="text-muted-foreground text-sm">
-        Monthly spend overview
-      </p>
-    </div>
-
-    <div className="bg-card border border-border rounded-xl p-6">
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart data={procurementData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis />
-          <Tooltip />
-          <Line type="monotone" dataKey="spend" stroke="#2563eb" />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </div>
+ <Analytics/>
+)}
+{activeTab === 'settings' && (
+  <Settings/>
 )}
 
     </DashboardLayout>
