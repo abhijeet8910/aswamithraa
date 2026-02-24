@@ -1,10 +1,25 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
-  ShoppingCart, CreditCard, TrendingUp, Truck, Package, Building2,
-  ArrowUpRight, MapPin, CheckCircle, Clock, BarChart3
+  ShoppingCart,
+  CreditCard,
+  TrendingUp,
+  Package,
+  Building2,
+  ArrowUpRight,
+  BarChart3,
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
 import Products from "./components/Products";
 import Orders from "./components/Orders";
 import Payments from "./components/Payments";
@@ -22,17 +37,71 @@ export const procurementData = [
 ];
 
 export const recentOrders = [
-  { id: "ORD-2401", product: "Basmati Rice", qty: "2000 kg", farmer: "Ramu Reddy, Nalgonda", amount: "₹1,36,000", status: "Delivered", date: "Jan 18" },
-  { id: "ORD-2398", product: "Tomatoes", qty: "500 kg", farmer: "Suresh Kumar, Warangal", amount: "₹17,500", status: "In Transit", date: "Jan 20" },
-  { id: "ORD-2392", product: "Turmeric", qty: "200 kg", farmer: "Lakshmi Bai, Nizamabad", amount: "₹19,000", status: "Confirmed", date: "Jan 22" },
-  { id: "ORD-2390", product: "Onions", qty: "1000 kg", farmer: "Govind Rao, Adilabad", amount: "₹28,000", status: "Pending", date: "Jan 23" },
+  {
+    id: "ORD-2401",
+    product: "Basmati Rice",
+    qty: "2000 kg",
+    farmer: "Ramu Reddy, Nalgonda",
+    amount: "₹1,36,000",
+    status: "Delivered",
+    date: "Jan 18",
+  },
+  {
+    id: "ORD-2398",
+    product: "Tomatoes",
+    qty: "500 kg",
+    farmer: "Suresh Kumar, Warangal",
+    amount: "₹17,500",
+    status: "In Transit",
+    date: "Jan 20",
+  },
+  {
+    id: "ORD-2392",
+    product: "Turmeric",
+    qty: "200 kg",
+    farmer: "Lakshmi Bai, Nizamabad",
+    amount: "₹19,000",
+    status: "Confirmed",
+    date: "Jan 22",
+  },
+  {
+    id: "ORD-2390",
+    product: "Onions",
+    qty: "1000 kg",
+    farmer: "Govind Rao, Adilabad",
+    amount: "₹28,000",
+    status: "Pending",
+    date: "Jan 23",
+  },
 ];
 
 export const orderStatus = (status: string) => {
-  if (status === "Delivered") return <span className="badge-success">{status}</span>;
-  if (status === "In Transit") return <span className="badge-info">{status}</span>;
-  if (status === "Confirmed") return <span className="badge-warning">{status}</span>;
-  return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground">{status}</span>;
+  if (status === "Delivered")
+    return (
+      <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700">
+        {status}
+      </span>
+    );
+
+  if (status === "In Transit")
+    return (
+      <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
+        {status}
+      </span>
+    );
+
+  if (status === "Confirmed")
+    return (
+      <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">
+        {status}
+      </span>
+    );
+
+  return (
+    <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+      {status}
+    </span>
+  );
 };
 
 const topProducts = [
@@ -48,150 +117,225 @@ const B2BDashboard: React.FC = () => {
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
       {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
+        <div className="space-y-8 p-6 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">B2B Business Dashboard</h1>
-              <p className="text-muted-foreground text-sm">Procurement analytics and order management</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                B2B Procurement Dashboard
+              </h1>
+              <p className="text-sm text-gray-500">
+                Manage orders, suppliers and analytics
+              </p>
             </div>
-            <div className="hidden md:flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg" style={{ background: "hsl(var(--success) / 0.1)", color: "hsl(var(--success))" }}>
-              <Building2 className="w-3.5 h-3.5" />
-              GSTIN: 36AABCS1234F1Z5 · Verified
+
+            <div className="flex items-center gap-2 text-xs px-3 py-2 rounded-lg bg-green-100 text-green-700 font-medium shadow-sm">
+              <Building2 className="w-4 h-4" />
+              GSTIN Verified
             </div>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              { label: "Total Purchases", value: "₹11.78L", icon: ShoppingCart, delta: "+28% this year", variant: "default" },
-              { label: "Payments Made", value: "₹10.24L", icon: CreditCard, delta: "87% settled", variant: "success" },
-              { label: "Active Orders", value: "6", icon: Package, delta: "2 in transit", variant: "default" },
-              { label: "Cost Savings", value: "₹2.14L", icon: TrendingUp, delta: "vs market price", variant: "accent" },
+              {
+                label: "Total Purchases",
+                value: "₹11.78L",
+                icon: ShoppingCart,
+                color: "from-blue-500 to-indigo-600",
+              },
+              {
+                label: "Payments Made",
+                value: "₹10.24L",
+                icon: CreditCard,
+                color: "from-emerald-500 to-green-600",
+              },
+              {
+                label: "Active Orders",
+                value: "6",
+                icon: Package,
+                color: "from-orange-400 to-orange-600",
+              },
+              {
+                label: "Cost Savings",
+                value: "₹2.14L",
+                icon: TrendingUp,
+                color: "from-purple-500 to-violet-600",
+              },
             ].map((stat) => {
               const Icon = stat.icon;
-              const isAccent = stat.variant === "accent";
-              const isSuccess = stat.variant === "success";
+
               return (
-                <div key={stat.label} className={isAccent ? "stat-card-accent" : isSuccess ? "stat-card-success" : "stat-card"}>
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: isAccent || isSuccess ? "hsl(0 0% 100% / 0.2)" : "hsl(210 80% 45% / 0.1)" }}>
-                      <Icon className="w-4 h-4" style={{ color: isAccent || isSuccess ? "white" : "hsl(210 80% 45%)" }} />
-                    </div>
-                    <ArrowUpRight className="w-3.5 h-3.5" style={{ color: isAccent || isSuccess ? "hsl(0 0% 100% / 0.7)" : "hsl(var(--success))" }} />
+                <div
+                  key={stat.label}
+                  className={`p-6 rounded-xl text-white shadow-xl bg-gradient-to-br ${stat.color} hover:scale-[1.02] transition`}
+                >
+                  <div className="flex justify-between mb-4">
+                    <Icon className="w-5 h-5" />
+                    <ArrowUpRight className="w-4 h-4 opacity-70" />
                   </div>
-                  <div className="text-2xl font-bold mb-1" style={{ color: isAccent || isSuccess ? "white" : "hsl(var(--foreground))" }}>{stat.value}</div>
-                  <div className="text-xs font-medium mb-0.5" style={{ color: isAccent || isSuccess ? "hsl(0 0% 100% / 0.9)" : "hsl(var(--foreground))" }}>{stat.label}</div>
-                  <div className="text-xs" style={{ color: isAccent || isSuccess ? "hsl(0 0% 100% / 0.7)" : "hsl(var(--muted-foreground))" }}>{stat.delta}</div>
+
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-xs opacity-90 mt-1">{stat.label}</div>
                 </div>
               );
             })}
           </div>
 
+          {/* Charts + Products */}
           <div className="grid lg:grid-cols-3 gap-6">
-            {/* Spend Chart */}
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-              <div className="flex items-center justify-between mb-5">
+
+            {/* Chart */}
+            <div className="lg:col-span-2 bg-white/80 backdrop-blur-md border border-white/40 shadow-xl rounded-xl p-6">
+
+              <div className="flex justify-between items-center mb-5">
                 <div>
-                  <h3 className="font-semibold text-foreground">Monthly Procurement</h3>
-                  <p className="text-xs text-muted-foreground">Spend & order volume trend</p>
+                  <h3 className="font-semibold text-gray-800">
+                    Monthly Procurement
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Spending analytics
+                  </p>
                 </div>
-                <button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "hsl(210 80% 45% / 0.1)", color: "hsl(210 80% 45%)" }}>
-                  Download CSV
+
+                <button className="text-xs bg-blue-100 text-blue-600 px-3 py-1 rounded-lg hover:bg-blue-200 transition">
+                  Export
                 </button>
               </div>
-              <ResponsiveContainer width="100%" height={200}>
+
+              <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={procurementData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(150 12% 88%)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(v: number) => [`₹${v.toLocaleString("en-IN")}`, "Spend"]} />
-                  <Bar dataKey="spend" fill="hsl(210,80%,45%)" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="spend" fill="#2563eb" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+
             </div>
 
             {/* Top Products */}
-            <div className="bg-card rounded-xl border border-border p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <BarChart3 className="w-4 h-4" style={{ color: "hsl(210 80% 45%)" }} />
+            <div className="bg-white/80 backdrop-blur-md border border-white/40 shadow-xl rounded-xl p-6">
+
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
                 Top Procured Items
               </h3>
+
               <div className="space-y-3">
+
                 {topProducts.map((p) => (
-                  <div key={p.name} className="flex items-center gap-3 p-3 rounded-lg" style={{ background: "hsl(var(--muted) / 0.5)" }}>
-                    <span className="text-xl">{p.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground">{p.name}</div>
-                      <div className="text-xs text-muted-foreground">{p.volume} procured</div>
+                  <div
+                    key={p.name}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-white to-slate-50 border hover:shadow-md transition"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{p.icon}</span>
+
+                      <div>
+                        <div className="text-sm font-medium">{p.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {p.volume}
+                        </div>
+                      </div>
                     </div>
-                    <span className="badge-success">{p.savings} saved</span>
+
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      {p.savings}
+                    </span>
                   </div>
                 ))}
+
               </div>
             </div>
           </div>
 
           {/* Orders Table */}
-          <div className="bg-card rounded-xl border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="p-5 border-b border-border flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">Recent Orders</h3>
-              <button className="text-xs font-medium px-3 py-1.5 rounded-lg" style={{ background: "hsl(210 80% 45% / 0.1)", color: "hsl(210 80% 45%)" }}>
+          <div className="bg-white/80 backdrop-blur-md border border-white/40 shadow-xl rounded-xl">
+
+            <div className="p-5 border-b flex justify-between items-center">
+              <h3 className="font-semibold text-gray-800">
+                Recent Orders
+              </h3>
+
+              <button className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg">
                 + New Order
               </button>
             </div>
+
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr style={{ background: "hsl(var(--muted) / 0.5)" }}>
-                    {["Order ID", "Product", "Quantity", "Farmer", "Amount", "Date", "Status"].map((h) => (
-                      <th key={h} className="text-left text-xs font-semibold text-muted-foreground px-5 py-3">{h}</th>
+              <table className="w-full text-sm">
+
+                <thead className="bg-slate-50">
+                  <tr>
+                    {[
+                      "Order ID",
+                      "Product",
+                      "Qty",
+                      "Farmer",
+                      "Amount",
+                      "Date",
+                      "Status",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="text-left px-5 py-3 text-gray-500 font-medium text-xs"
+                      >
+                        {h}
+                      </th>
                     ))}
                   </tr>
                 </thead>
+
                 <tbody>
                   {recentOrders.map((o) => (
-                    <tr key={o.id} className="data-table-row">
-                      <td className="px-5 py-3.5 text-xs font-mono text-muted-foreground">{o.id}</td>
-                      <td className="px-5 py-3.5 text-sm font-medium text-foreground">{o.product}</td>
-                      <td className="px-5 py-3.5 text-sm text-foreground">{o.qty}</td>
-                      <td className="px-5 py-3.5 text-xs text-muted-foreground">{o.farmer}</td>
-                      <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{o.amount}</td>
-                      <td className="px-5 py-3.5 text-xs text-muted-foreground">{o.date}</td>
-                      <td className="px-5 py-3.5">{orderStatus(o.status)}</td>
+                    <tr
+                      key={o.id}
+                      className="border-t hover:bg-blue-50/60 transition"
+                    >
+                      <td className="px-5 py-3 text-xs text-gray-500 font-mono">
+                        {o.id}
+                      </td>
+
+                      <td className="px-5 py-3 font-medium">
+                        {o.product}
+                      </td>
+
+                      <td className="px-5 py-3">{o.qty}</td>
+
+                      <td className="px-5 py-3 text-gray-500">
+                        {o.farmer}
+                      </td>
+
+                      <td className="px-5 py-3 font-semibold">
+                        {o.amount}
+                      </td>
+
+                      <td className="px-5 py-3 text-gray-500">
+                        {o.date}
+                      </td>
+
+                      <td className="px-5 py-3">
+                        {orderStatus(o.status)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           </div>
         </div>
       )}
 
-     {/* Orders section */}
-     {activeTab === "orders" && (
-  <Orders/>
-)}
-{/* products section */}
-{activeTab === "products" && (
-  <Products/>
-)}
-{/* payments section */}
-{activeTab === "payments" && (
-  <Payments/>
-  )}
-
-{/* delivery section */}
-{activeTab === "delivery" && (
-  <Delivery/>
-)}
-{/* analytics seciton */}
-{activeTab === "analytics" && (
- <Analytics/>
-)}
-{activeTab === 'settings' && (
-  <Settings/>
-)}
-
+      {activeTab === "orders" && <Orders />}
+      {activeTab === "products" && <Products />}
+      {activeTab === "payments" && <Payments />}
+      {activeTab === "delivery" && <Delivery />}
+      {activeTab === "analytics" && <Analytics />}
+      {activeTab === "settings" && <Settings />}
     </DashboardLayout>
   );
 };

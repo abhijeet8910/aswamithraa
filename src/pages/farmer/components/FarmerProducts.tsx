@@ -14,7 +14,6 @@ type Product = {
 };
 
 const categories = ["Vegetables", "Fruits", "Grains", "Dairy", "Other"];
-
 const units = ["Gram", "KG", "Litre", "Quintal"];
 
 const initialProducts: Product[] = [
@@ -40,13 +39,18 @@ const initialProducts: Product[] = [
 
 function statusBadge(status: ProductStatus) {
   const styles = {
-    Available: "bg-green-100 text-green-700",
-    "Low Stock": "bg-yellow-100 text-yellow-700",
-    "Out of Stock": "bg-red-100 text-red-700",
+    Available:
+      "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md",
+    "Low Stock":
+      "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md",
+    "Out of Stock":
+      "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md",
   };
 
   return (
-    <span className={`px-2 py-1 text-xs rounded-md ${styles[status]}`}>
+    <span
+      className={`px-3 py-1 text-xs rounded-full font-semibold ${styles[status]}`}
+    >
       {status}
     </span>
   );
@@ -56,6 +60,7 @@ export default function FarmerProducts() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [open, setOpen] = useState(false);
   const [customCategory, setCustomCategory] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [form, setForm] = useState<Product>({
     id: "",
@@ -66,8 +71,6 @@ export default function FarmerProducts() {
     price: "",
     status: "Available",
   });
-
-  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -117,13 +120,17 @@ export default function FarmerProducts() {
   return (
     <div className="space-y-6">
 
-      {/* Header */}
+      {/* HEADER */}
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center bg-gradient-to-r from-green-600 to-emerald-500 p-6 rounded-2xl text-white shadow">
+
         <div>
-          <h1 className="text-2xl font-bold">Product Management</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your agricultural products
+          <h1 className="text-3xl font-bold ">
+            Product Management
+          </h1>
+
+          <p className="text-sm text-white">
+            Manage your agricultural products and stock
           </p>
         </div>
 
@@ -132,82 +139,104 @@ export default function FarmerProducts() {
             setOpen(true);
             setEditingId(null);
           }}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg"
+          className="flex items-center gap-2 px-5 py-2 rounded-lg text-white
+          bg-gradient-to-r from-blue-500 to-indigo-600 hover:scale-105 transition shadow-lg"
         >
           <Plus size={16} />
           Add Product
         </button>
+
       </div>
 
-      {/* Products Table */}
+      {/* PRODUCTS TABLE */}
 
-      <div className="bg-card border rounded-xl overflow-x-auto">
+      <div className="bg-white border rounded-xl shadow-lg overflow-hidden">
 
         <table className="w-full">
 
-          <thead className="bg-muted">
+          <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
+
             <tr>
               {["Name", "Category", "Stock", "Price", "Status", "Actions"].map(
                 (h) => (
-                  <th key={h} className="text-left px-5 py-3 text-xs">
+                  <th
+                    key={h}
+                    className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase"
+                  >
                     {h}
                   </th>
                 )
               )}
             </tr>
+
           </thead>
 
           <tbody>
+
             {products.map((p) => (
-              <tr key={p.id} className="border-t">
+              <tr
+                key={p.id}
+                className="border-t hover:bg-green-50 transition"
+              >
 
-                <td className="px-5 py-3">{p.name}</td>
+                <td className="px-6 py-4 font-medium">{p.name}</td>
 
-                <td className="px-5 py-3">{p.category}</td>
+                <td className="px-6 py-4">{p.category}</td>
 
-                <td className="px-5 py-3">
+                <td className="px-6 py-4">
                   {p.quantity} {p.unit}
                 </td>
 
-                <td className="px-5 py-3">{p.price}</td>
+                <td className="px-6 py-4 font-semibold text-green-700">
+                  {p.price}
+                </td>
 
-                <td className="px-5 py-3">
+                <td className="px-6 py-4">
                   {statusBadge(p.status)}
                 </td>
 
-                <td className="px-5 py-3 flex gap-2">
+                <td className="px-6 py-4 flex gap-2">
 
                   <button
                     onClick={() => handleEdit(p)}
-                    className="px-3 py-1 text-xs bg-blue-500 text-white rounded"
+                    className="px-3 py-1 text-xs rounded-md text-white
+                    bg-gradient-to-r from-blue-500 to-indigo-600
+                    hover:scale-105 transition"
                   >
                     Edit
                   </button>
 
                   <button
                     onClick={() => handleDelete(p.id)}
-                    className="px-3 py-1 text-xs bg-red-500 text-white rounded"
+                    className="px-3 py-1 text-xs rounded-md text-white
+                    bg-gradient-to-r from-red-500 to-rose-600
+                    hover:scale-105 transition"
                   >
                     Delete
                   </button>
 
                 </td>
+
               </tr>
             ))}
+
           </tbody>
+
         </table>
+
       </div>
 
-      {/* Modal */}
+      {/* MODAL */}
 
       {open && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
 
-          <div className="bg-white rounded-xl w-full max-w-lg p-6 relative">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 relative shadow-2xl">
 
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-4 top-4"
+              className="absolute right-4 top-4 text-gray-500 hover:text-black"
             >
               <X size={18} />
             </button>
@@ -225,7 +254,7 @@ export default function FarmerProducts() {
                 name="name"
                 placeholder="Product Name"
                 onChange={handleChange}
-                className="border rounded-lg px-4 py-2"
+                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 outline-none"
               />
 
               <select
@@ -288,7 +317,9 @@ export default function FarmerProducts() {
 
                 <button
                   type="submit"
-                  className="bg-primary text-white px-6 py-2 rounded-lg"
+                  className="px-6 py-2 rounded-lg text-white
+                  bg-gradient-to-r from-green-600 to-emerald-500
+                  hover:scale-105 transition shadow-md"
                 >
                   Save Product
                 </button>
@@ -298,8 +329,11 @@ export default function FarmerProducts() {
             </form>
 
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 }

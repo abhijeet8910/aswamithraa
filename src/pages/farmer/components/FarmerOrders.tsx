@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Eye, X } from "lucide-react";
 
 type OrderStatus = "Pending" | "Completed" | "Cancelled";
 
@@ -58,13 +59,18 @@ const orders: Order[] = [
 
 const statusBadge = (status: OrderStatus) => {
   const styles = {
-    Pending: "bg-yellow-100 text-yellow-700",
-    Completed: "bg-green-100 text-green-700",
-    Cancelled: "bg-red-100 text-red-700",
+    Pending:
+      "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow",
+    Completed:
+      "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow",
+    Cancelled:
+      "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow",
   };
 
   return (
-    <span className={`px-2 py-1 text-xs rounded-md ${styles[status]}`}>
+    <span
+      className={`px-3 py-1 text-xs rounded-full font-semibold ${styles[status]}`}
+    >
       {status}
     </span>
   );
@@ -80,34 +86,53 @@ const FarmerOrders = () => {
   return (
     <div className="space-y-6">
 
-      <h1 className="text-2xl font-bold">Orders</h1>
+      {/* HEADER */}
+
+      <div className="bg-gradient-to-r from-green-600 to-emerald-500 p-6 rounded-2xl text-white shadow">
+
+<h1 className="text-2xl font-bold">
+  Order Managements
+</h1>
+
+<p className="text-sm opacity-90">
+  Track all incoming orders
+</p>
+
+</div>
 
       {/* FILTER TABS */}
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-3 flex-wrap">
+
         {["All", "Pending", "Completed", "Cancelled"].map((tab) => (
+
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 text-sm rounded-lg border ${
+            className={`px-4 py-2 text-sm rounded-lg transition font-medium
+            ${
               filter === tab
-                ? "bg-primary text-white"
-                : "bg-card text-foreground"
+                ? "text-white bg-gradient-to-r from-green-600 to-emerald-500 shadow-md"
+                : "bg-white border hover:bg-green-50"
             }`}
           >
             {tab}
           </button>
+
         ))}
+
       </div>
 
       {/* TABLE */}
 
-      <div className="bg-card border rounded-xl overflow-x-auto">
+      <div className="bg-white border rounded-xl shadow-lg overflow-x-auto">
 
         <table className="w-full min-w-[800px]">
 
-          <thead className="bg-muted">
+          <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
+
             <tr>
+
               {[
                 "Order ID",
                 "Buyer",
@@ -118,36 +143,70 @@ const FarmerOrders = () => {
                 "Status",
                 "Actions",
               ].map((h) => (
-                <th key={h} className="text-left px-5 py-3 text-xs">
+                <th
+                  key={h}
+                  className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase"
+                >
                   {h}
                 </th>
               ))}
+
             </tr>
+
           </thead>
 
           <tbody>
 
             {filteredOrders.map((order) => (
-              <tr key={order.id} className="border-t hover:bg-muted/40">
 
-                <td className="px-5 py-3">{order.id}</td>
-                <td className="px-5 py-3">{order.buyer}</td>
-                <td className="px-5 py-3">{order.product}</td>
-                <td className="px-5 py-3">{order.quantity}</td>
-                <td className="px-5 py-3">{order.amount}</td>
-                <td className="px-5 py-3">{order.date}</td>
-                <td className="px-5 py-3">{statusBadge(order.status)}</td>
+              <tr
+                key={order.id}
+                className="border-t hover:bg-green-50 transition"
+              >
 
-                <td className="px-5 py-3">
+                <td className="px-6 py-4 font-medium">
+                  {order.id}
+                </td>
+
+                <td className="px-6 py-4">
+                  {order.buyer}
+                </td>
+
+                <td className="px-6 py-4">
+                  {order.product}
+                </td>
+
+                <td className="px-6 py-4">
+                  {order.quantity}
+                </td>
+
+                <td className="px-6 py-4 font-semibold text-green-700">
+                  {order.amount}
+                </td>
+
+                <td className="px-6 py-4">
+                  {order.date}
+                </td>
+
+                <td className="px-6 py-4">
+                  {statusBadge(order.status)}
+                </td>
+
+                <td className="px-6 py-4">
+
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="px-3 py-1 text-xs bg-blue-500 text-white rounded"
+                    className="flex items-center gap-1 px-3 py-1 text-xs text-white rounded-md
+                    bg-gradient-to-r from-blue-500 to-indigo-600 hover:scale-105 transition"
                   >
+                    <Eye size={14} />
                     View
                   </button>
+
                 </td>
 
               </tr>
+
             ))}
 
           </tbody>
@@ -159,15 +218,23 @@ const FarmerOrders = () => {
       {/* MODAL */}
 
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
 
-            <h3 className="text-lg font-semibold mb-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl relative">
+
+            <button
+              onClick={() => setSelectedOrder(null)}
+              className="absolute right-4 top-4 text-gray-500 hover:text-black"
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-xl font-semibold mb-5">
               Order Details
             </h3>
 
-            <div className="space-y-2 text-sm">
+            <div className="space-y-3 text-sm">
 
               <p><b>Order ID:</b> {selectedOrder.id}</p>
               <p><b>Buyer:</b> {selectedOrder.buyer}</p>
@@ -176,13 +243,17 @@ const FarmerOrders = () => {
               <p><b>Total:</b> {selectedOrder.amount}</p>
               <p><b>Date:</b> {selectedOrder.date}</p>
               <p><b>Location:</b> {selectedOrder.location}</p>
-              <p><b>Status:</b> {selectedOrder.status}</p>
+
+              <div className="flex items-center gap-2">
+                <b>Status:</b> {statusBadge(selectedOrder.status)}
+              </div>
 
             </div>
 
             <button
               onClick={() => setSelectedOrder(null)}
-              className="mt-4 bg-primary text-white px-4 py-2 rounded"
+              className="mt-6 w-full py-2 rounded-lg text-white
+              bg-gradient-to-r from-green-600 to-emerald-500 hover:scale-105 transition"
             >
               Close
             </button>
@@ -190,6 +261,7 @@ const FarmerOrders = () => {
           </div>
 
         </div>
+
       )}
 
     </div>

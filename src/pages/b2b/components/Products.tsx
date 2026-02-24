@@ -126,13 +126,13 @@ const Products = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
 
-      <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">
-          Product Discovery
-        </h1>
-        <p className="text-muted-foreground text-sm">
+      {/* HEADER */}
+
+      <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white rounded-2xl p-6 shadow-lg">
+        <h1 className="text-2xl font-bold">Product Discovery</h1>
+        <p className="text-green-100 text-sm">
           Explore farm products for bulk procurement
         </p>
       </div>
@@ -142,7 +142,7 @@ const Products = () => {
       <input
         type="text"
         placeholder="🔎 Search products..."
-        className="w-full border rounded-lg px-4 py-2"
+        className="w-full border border-gray-200 rounded-xl px-4 py-3 shadow-sm focus:ring-2 focus:ring-green-500"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -154,8 +154,10 @@ const Products = () => {
           <button
             key={c}
             onClick={() => setCategory(c)}
-            className={`px-4 py-2 border rounded-lg text-sm ${
-              category === c ? "bg-primary text-white" : ""
+            className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+              category === c
+                ? "bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow"
+                : "bg-white border border-gray-200 hover:bg-gray-50"
             }`}
           >
             {c}
@@ -170,8 +172,10 @@ const Products = () => {
           <button
             key={u}
             onClick={() => setUnitFilter(u)}
-            className={`px-4 py-2 border rounded-lg text-sm ${
-              unitFilter === u ? "bg-primary text-white" : ""
+            className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+              unitFilter === u
+                ? "bg-gradient-to-r from-blue-600 to-indigo-500 text-white shadow"
+                : "bg-white border border-gray-200 hover:bg-gray-50"
             }`}
           >
             {u}
@@ -181,58 +185,63 @@ const Products = () => {
 
       {/* PRODUCT GRID */}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
 
         {filteredProducts.map((p) => (
           <div
             key={p.id}
-            className="bg-card border border-border rounded-xl p-5 hover:shadow-md"
+            className="bg-white border border-gray-100 rounded-2xl p-6 shadow-md hover:shadow-xl transition"
           >
 
-            <h3 className="font-semibold">{p.name}</h3>
+            <div className="flex justify-between items-start">
+              <h3 className="font-semibold text-lg">{p.name}</h3>
+              <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                {p.category}
+              </span>
+            </div>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-500 mt-1">
               Supplier: {p.farmer}
             </p>
 
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-gray-500">
               📍 {p.location}
             </p>
 
-            <p className="text-xs mt-1">
+            <p className="text-xs mt-2 text-yellow-600">
               ⭐ {p.rating} Supplier Rating
             </p>
 
-            <div className="mt-3 text-sm">
+            <div className="mt-4 space-y-1 text-sm">
 
               <p>
-                Stock: {p.stock} {p.unit}
+                📦 Stock: {p.stock} {p.unit}
               </p>
 
               <p>
-                📦 MOQ: {p.minOrder} {p.unit}
+                MOQ: {p.minOrder} {p.unit}
               </p>
 
               <p>
                 🚚 Delivery: {p.delivery}
               </p>
 
-              <p className="font-semibold text-primary">
+              <p className="font-bold text-green-700 text-lg">
                 ₹{p.price}/{p.unit}
               </p>
 
             </div>
 
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-3 mt-5">
 
               <button
                 onClick={() => setSelectedProduct(p)}
-                className="flex-1 py-2 bg-primary text-white rounded-lg text-sm"
+                className="flex-1 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-500 hover:opacity-90"
               >
                 Bulk Order
               </button>
 
-              <button className="flex-1 py-2 border rounded-lg text-sm">
+              <button className="flex-1 py-2 rounded-lg text-sm border border-gray-200 hover:bg-gray-50">
                 Negotiate
               </button>
 
@@ -246,24 +255,20 @@ const Products = () => {
       {/* PRODUCT MODAL */}
 
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
 
-          <div className="bg-white rounded-xl p-6 w-full max-w-lg">
+          <div className="bg-white rounded-2xl p-7 w-full max-w-lg shadow-2xl">
 
-            <h3 className="text-lg font-semibold mb-4">
+            <h3 className="text-xl font-semibold mb-4 text-green-700">
               Product Details
             </h3>
 
             <div className="space-y-2 text-sm">
 
               <p><b>Product:</b> {selectedProduct.name}</p>
-
               <p><b>Category:</b> {selectedProduct.category}</p>
-
               <p><b>Supplier:</b> {selectedProduct.farmer}</p>
-
               <p><b>Location:</b> {selectedProduct.location}</p>
-
               <p><b>Rating:</b> ⭐ {selectedProduct.rating}</p>
 
               <p>
@@ -288,17 +293,17 @@ const Products = () => {
 
             <div className="flex gap-3 mt-6">
 
-              <button className="bg-primary text-white px-4 py-2 rounded">
+              <button className="bg-gradient-to-r from-green-600 to-emerald-500 text-white px-4 py-2 rounded-lg">
                 Proceed Order
               </button>
 
-              <button className="border px-4 py-2 rounded">
+              <button className="border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50">
                 Request Negotiation
               </button>
 
               <button
                 onClick={() => setSelectedProduct(null)}
-                className="border px-4 py-2 rounded"
+                className="border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50"
               >
                 Close
               </button>

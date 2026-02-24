@@ -45,18 +45,26 @@ const FarmerSettings = () => {
 
       {/* HEADER */}
 
-      <div>
-        <h1 className="text-2xl font-bold">Farmer Profile</h1>
-        <p className="text-sm text-muted-foreground">
-          Complete your farmer profile and verification details
+      <div className="bg-gradient-to-r from-green-600 to-emerald-500 p-6 rounded-2xl text-white shadow">
+
+        <h1 className="text-2xl font-bold">
+          Farmer Profile & Verification
+        </h1>
+
+        <p className="text-sm opacity-90">
+          Complete your profile and submit KYC for approval
         </p>
+
       </div>
+
 
       {/* PERSONAL DETAILS */}
 
-      <div className="bg-card border rounded-xl p-6 space-y-4">
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm space-y-4">
 
-        <h2 className="font-semibold text-lg">Personal Information</h2>
+        <h2 className="font-semibold text-lg text-gray-700">
+          Personal Information
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
 
@@ -65,7 +73,7 @@ const FarmerSettings = () => {
             placeholder="Farmer Name"
             value={profile.farmerName}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -73,7 +81,7 @@ const FarmerSettings = () => {
             placeholder="Phone Number"
             value={profile.phone}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -81,18 +89,21 @@ const FarmerSettings = () => {
             placeholder="Email"
             value={profile.email}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
         </div>
 
       </div>
 
-      {/* FARM INFORMATION */}
 
-      <div className="bg-card border rounded-xl p-6 space-y-4">
+      {/* FARM DETAILS */}
 
-        <h2 className="font-semibold text-lg">Farm Information</h2>
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm space-y-4">
+
+        <h2 className="font-semibold text-lg text-gray-700">
+          Farm Information
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
 
@@ -101,7 +112,7 @@ const FarmerSettings = () => {
             placeholder="Farm Name"
             value={profile.farmName}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -109,7 +120,7 @@ const FarmerSettings = () => {
             placeholder="Farm Location"
             value={profile.farmLocation}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -117,26 +128,29 @@ const FarmerSettings = () => {
             placeholder="State"
             value={profile.state}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
             name="cropType"
-            placeholder="Main Crops (Rice, Wheat, Vegetables...)"
+            placeholder="Main Crops"
             value={profile.cropType}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
         </div>
 
       </div>
 
+
       {/* BANK DETAILS */}
 
-      <div className="bg-card border rounded-xl p-6 space-y-4">
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm space-y-4">
 
-        <h2 className="font-semibold text-lg">Bank Details</h2>
+        <h2 className="font-semibold text-lg text-gray-700">
+          Bank Details
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
 
@@ -145,7 +159,7 @@ const FarmerSettings = () => {
             placeholder="Bank Name"
             value={profile.bankName}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -153,7 +167,7 @@ const FarmerSettings = () => {
             placeholder="Account Number"
             value={profile.accountNumber}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -161,18 +175,21 @@ const FarmerSettings = () => {
             placeholder="IFSC Code"
             value={profile.ifsc}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
         </div>
 
       </div>
 
+
       {/* KYC DETAILS */}
 
-      <div className="bg-card border rounded-xl p-6 space-y-4">
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm space-y-4">
 
-        <h2 className="font-semibold text-lg">KYC Details</h2>
+        <h2 className="font-semibold text-lg text-gray-700">
+          KYC Details
+        </h2>
 
         <div className="grid md:grid-cols-2 gap-4">
 
@@ -181,7 +198,7 @@ const FarmerSettings = () => {
             placeholder="Aadhaar Number"
             value={profile.aadhaar}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
           <input
@@ -189,54 +206,57 @@ const FarmerSettings = () => {
             placeholder="PAN Number"
             value={profile.pan}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2"
+            className="border rounded-lg px-4 py-2"
           />
 
         </div>
 
       </div>
 
+
       {/* DOCUMENT UPLOAD */}
 
-      <div className="bg-card border rounded-xl p-6 space-y-4">
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm space-y-4">
 
-        <h2 className="font-semibold text-lg">Upload Documents</h2>
+        <h2 className="font-semibold text-lg text-gray-700">
+          Upload Documents
+        </h2>
 
         <div className="space-y-3">
 
-          <div>
-            <label className="text-sm">Upload Aadhaar Card</label>
-            <input type="file" className="block mt-1" />
-          </div>
+          <input type="file" />
 
-          <div>
-            <label className="text-sm">Upload PAN Card</label>
-            <input type="file" className="block mt-1" />
-          </div>
+          <input type="file" />
 
-          <div>
-            <label className="text-sm">Upload Land Ownership Proof</label>
-            <input type="file" className="block mt-1" />
-          </div>
+          <input type="file" />
 
         </div>
 
       </div>
 
-      {/* VERIFICATION STATUS */}
 
-      <div className="bg-card border rounded-xl p-6 flex justify-between items-center">
+      {/* KYC STATUS */}
+
+      <div className="bg-white border border-green-100 rounded-2xl p-6 shadow-sm flex justify-between items-center">
 
         <div>
-          <h2 className="font-semibold">Verification Status</h2>
-          <p className="text-sm text-muted-foreground">
-            Status: <span className="font-medium">{kycStatus}</span>
+
+          <h2 className="font-semibold">
+            Verification Status
+          </h2>
+
+          <p className="text-sm text-gray-500">
+            Status: 
+            <span className="ml-2 px-3 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+              {kycStatus}
+            </span>
           </p>
+
         </div>
 
         <button
           onClick={() => setKycStatus("Submitted")}
-          className="px-4 py-2 bg-primary text-white rounded-lg"
+          className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg"
         >
           Submit for Verification
         </button>

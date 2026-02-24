@@ -54,60 +54,89 @@ const Payments = () => {
       : paymentsData.filter((p) => p.status === filter);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+
       {/* HEADER */}
 
-      <div>
-        <h1 className="text-2xl font-bold">Payments</h1>
-        <p className="text-sm text-muted-foreground">
-          Track settlements and transactions
-        </p>
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl p-6 shadow-lg flex justify-between items-center">
+
+        <div>
+          <h1 className="text-2xl font-bold">Payments</h1>
+          <p className="text-purple-100 text-sm">
+            Track settlements and transactions
+          </p>
+        </div>
+
+        <div className="text-sm bg-white/20 px-4 py-2 rounded-lg">
+          Secure Payment Ledger
+        </div>
+
       </div>
 
       {/* FILTER TABS */}
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 flex-wrap">
+
         {["All", "Pending", "Completed"].map((tab) => (
           <button
             key={tab}
             onClick={() => setFilter(tab)}
-            className={`px-4 py-2 rounded-lg text-sm border ${
-              filter === tab ? "bg-primary text-white" : "bg-card"
+            className={`px-5 py-2 rounded-full text-sm font-medium transition ${
+              filter === tab
+                ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow"
+                : "bg-white border border-gray-200 hover:bg-gray-50"
             }`}
           >
             {tab}
           </button>
         ))}
+
       </div>
 
       {/* TABLE */}
 
-      <div className="bg-card border border-border rounded-xl overflow-x-auto">
+      <div className="bg-white border border-gray-100 rounded-2xl shadow-md overflow-x-auto">
+
         <table className="w-full min-w-[700px]">
-          <thead className="bg-muted">
+
+          <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+
             <tr>
-              <th className="px-5 py-3 text-left text-xs">ID</th>
-              <th className="px-5 py-3 text-left text-xs">Product</th>
-              <th className="px-5 py-3 text-left text-xs">Farmer</th>
-              <th className="px-5 py-3 text-left text-xs">Buyer</th>
-              <th className="px-5 py-3 text-left text-xs">Amount</th>
-              <th className="px-5 py-3 text-left text-xs">Status</th>
-              <th className="px-5 py-3 text-left text-xs">Action</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Product</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Farmer</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Buyer</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Amount</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Action</th>
             </tr>
+
           </thead>
 
           <tbody>
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-b border-border">
-                <td className="px-5 py-3">{p.id}</td>
-                <td className="px-5 py-3">{p.product}</td>
-                <td className="px-5 py-3">{p.farmer}</td>
-                <td className="px-5 py-3">{p.buyer}</td>
-                <td className="px-5 py-3 font-semibold">{p.amount}</td>
 
-                <td className="px-5 py-3">
+            {filtered.map((p) => (
+              <tr
+                key={p.id}
+                className="border-t hover:bg-gray-50 transition"
+              >
+
+                <td className="px-6 py-4 font-medium">{p.id}</td>
+
+                <td className="px-6 py-4">{p.product}</td>
+
+                <td className="px-6 py-4">{p.farmer}</td>
+
+                <td className="px-6 py-4">{p.buyer}</td>
+
+                <td className="px-6 py-4 font-semibold text-green-700">
+                  {p.amount}
+                </td>
+
+                <td className="px-6 py-4">
+
                   <span
-                    className={`px-2 py-1 rounded text-xs ${
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
                       p.status === "Completed"
                         ? "bg-green-100 text-green-700"
                         : "bg-yellow-100 text-yellow-700"
@@ -115,49 +144,74 @@ const Payments = () => {
                   >
                     {p.status}
                   </span>
+
                 </td>
 
-                <td className="px-5 py-3">
+                <td className="px-6 py-4">
+
                   <button
                     onClick={() => setSelectedPayment(p)}
-                    className="px-3 py-1 text-sm bg-primary text-white rounded-md"
+                    className="px-4 py-1 text-xs font-medium text-white rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-90"
                   >
                     View
                   </button>
+
                 </td>
+
               </tr>
             ))}
+
           </tbody>
+
         </table>
+
       </div>
 
       {/* MODAL */}
 
       {selectedPayment && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[400px] shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Payment Details</h2>
 
-            <div className="space-y-2 text-sm">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+          <div className="bg-white rounded-2xl p-7 w-[420px] shadow-2xl">
+
+            <h2 className="text-xl font-semibold text-indigo-700 mb-5">
+              Payment Details
+            </h2>
+
+            <div className="space-y-3 text-sm">
+
               <p><b>ID:</b> {selectedPayment.id}</p>
+
               <p><b>Product:</b> {selectedPayment.product}</p>
+
               <p><b>Farmer:</b> {selectedPayment.farmer}</p>
+
               <p><b>Buyer:</b> {selectedPayment.buyer}</p>
+
               <p><b>Amount:</b> {selectedPayment.amount}</p>
+
               <p><b>Status:</b> {selectedPayment.status}</p>
+
               <p><b>Method:</b> {selectedPayment.method}</p>
+
               <p><b>Date:</b> {selectedPayment.date}</p>
+
             </div>
 
             <button
               onClick={() => setSelectedPayment(null)}
-              className="mt-5 px-4 py-2 bg-primary text-white rounded-lg w-full"
+              className="mt-6 w-full px-4 py-2 rounded-lg text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90"
             >
               Close
             </button>
+
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 };
