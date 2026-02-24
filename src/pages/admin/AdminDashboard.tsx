@@ -5,6 +5,7 @@ import {
   CheckCircle, XCircle, Clock, AlertCircle, Download, Eye, Shield
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import DeliveryManagement from "./component/DeliveryManagement";
 
 const transactionTrend = [
   { month: "Aug", volume: 1240000, count: 342 },
@@ -20,6 +21,40 @@ const categoryPie = [
   { name: "Vegetables", value: 32 },
   { name: "Spices", value: 18 },
   { name: "Fruits", value: 12 },
+];
+// ---------------- FARMERS ----------------
+const farmersData = [
+  { id: "F-1001", name: "Ramu Reddy", location: "Telangana", products: 12, joined: "Oct 2025", status: "Approved", earnings: "₹2,45,000" },
+  { id: "F-1002", name: "Lakshmi Bai", location: "Maharashtra", products: 8, joined: "Nov 2025", status: "Pending", earnings: "₹1,12,000" },
+  { id: "F-1003", name: "Govind Rao", location: "Karnataka", products: 15, joined: "Sep 2025", status: "Suspended", earnings: "₹3,01,000" },
+];
+
+// ---------------- BUSINESSES ----------------
+const businessData = [
+  { id: "B-201", name: "FreshMart Pvt Ltd", gst: "36AABCS1234F1Z5", orders: 142, volume: "₹18.4L", status: "Verified" },
+  { id: "B-202", name: "AgroBulk Traders", gst: "27AACCA4567D1Z2", orders: 89, volume: "₹9.2L", status: "Pending" },
+  { id: "B-203", name: "GreenSource Foods", gst: "29AAACG2233L1Z4", orders: 201, volume: "₹22.1L", status: "Verified" },
+];
+
+// ---------------- CUSTOMERS ----------------
+const customersData = [
+  { id: "C-301", name: "Anita Sharma", email: "anita@gmail.com", orders: 14, spent: "₹28,400", status: "Active" },
+  { id: "C-302", name: "Rahul Verma", email: "rahul@gmail.com", orders: 6, spent: "₹7,200", status: "Active" },
+  { id: "C-303", name: "Priya Nair", email: "priya@gmail.com", orders: 0, spent: "₹0", status: "Blocked" },
+];
+
+// ---------------- DELIVERY ----------------
+const deliveryData = [
+  { id: "DLV-501", order: "ORD-1001", partner: "BlueDart", status: "In Transit", eta: "2 Days" },
+  { id: "DLV-502", order: "ORD-1002", partner: "Delhivery", status: "Delivered", eta: "Completed" },
+  { id: "DLV-503", order: "ORD-1003", partner: "DTDC", status: "Delayed", eta: "1 Day Delay" },
+];
+
+// ---------------- TRANSACTIONS ----------------
+const allTransactions = [
+  { id: "TXN-9001", user: "FreshMart", amount: "₹1,36,000", date: "Jan 20", status: "Success" },
+  { id: "TXN-9002", user: "Lakshmi Bai", amount: "₹18,500", date: "Jan 21", status: "Pending" },
+  { id: "TXN-9003", user: "Anita Sharma", amount: "₹980", date: "Jan 22", status: "Failed" },
 ];
 
 const PIE_COLORS = ["hsl(150,57%,22%)", "hsl(38,90%,55%)", "hsl(210,80%,45%)", "hsl(142,70%,35%)"];
@@ -233,15 +268,222 @@ const AdminDashboard: React.FC = () => {
         </div>
       )}
 
-      {activeTab !== "dashboard" && (
-        <div className="space-y-6">
-          <h1 className="font-display text-2xl font-bold text-foreground capitalize">{activeTab}</h1>
-          <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <div className="text-5xl mb-4">🛡️</div>
-            <p className="text-muted-foreground">This admin section is under development.</p>
-          </div>
+      {/* famers section */}
+      {activeTab === "farmers" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Farmers Management</h1>
+
+    {/* Quick Stats */}
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="stat-card">
+        <div className="text-xl font-bold">{farmersData.length}</div>
+        <div className="text-xs text-muted-foreground">Total Farmers</div>
+      </div>
+      <div className="stat-card">
+        <div className="text-xl font-bold">
+          {farmersData.filter(f => f.status === "Approved").length}
         </div>
-      )}
+        <div className="text-xs text-muted-foreground">Approved</div>
+      </div>
+    </div>
+
+    {/* Table */}
+    <div className="bg-card border border-border rounded-xl overflow-x-auto">
+      <table className="w-full min-w-[900px]">
+        <thead className="bg-muted">
+          <tr>
+            {["ID", "Name", "Location", "Products", "Earnings", "Status"].map((h) => (
+              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {farmersData.map((f) => (
+            <tr key={f.id} className="data-table-row">
+              <td className="px-5 py-3 text-xs font-mono">{f.id}</td>
+              <td className="px-5 py-3 font-medium">{f.name}</td>
+              <td className="px-5 py-3">{f.location}</td>
+              <td className="px-5 py-3">{f.products}</td>
+              <td className="px-5 py-3 font-semibold">{f.earnings}</td>
+              <td className="px-5 py-3">
+                <span className={
+                  f.status === "Approved"
+                    ? "badge-success"
+                    : f.status === "Pending"
+                    ? "badge-warning"
+                    : "badge-destructive"
+                }>
+                  {f.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+{/* business section */}
+{activeTab === "businesses" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Business Accounts</h1>
+
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {businessData.map((b) => (
+        <div key={b.id} className="bg-card border border-border rounded-xl p-5 space-y-2">
+          <div className="flex justify-between items-center">
+            <h3 className="font-semibold">{b.name}</h3>
+            <span className={b.status === "Verified" ? "badge-success" : "badge-warning"}>
+              {b.status}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">GST: {b.gst}</p>
+          <p className="text-sm">Orders: <span className="font-semibold">{b.orders}</span></p>
+          <p className="text-sm">Volume: <span className="font-semibold">{b.volume}</span></p>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+  {/* customers section */}
+  {activeTab === "customers" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Customers</h1>
+
+    <div className="bg-card border border-border rounded-xl overflow-x-auto">
+      <table className="w-full min-w-[800px]">
+        <thead className="bg-muted">
+          <tr>
+            {["ID", "Name", "Email", "Orders", "Spent", "Status"].map((h) => (
+              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {customersData.map((c) => (
+            <tr key={c.id} className="data-table-row">
+              <td className="px-5 py-3 text-xs font-mono">{c.id}</td>
+              <td className="px-5 py-3 font-medium">{c.name}</td>
+              <td className="px-5 py-3">{c.email}</td>
+              <td className="px-5 py-3">{c.orders}</td>
+              <td className="px-5 py-3 font-semibold">{c.spent}</td>
+              <td className="px-5 py-3">
+                <span className={c.status === "Active" ? "badge-success" : "badge-destructive"}>
+                  {c.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+
+{/* delivery section */}
+{activeTab === "delivery" && (
+  <DeliveryManagement/>
+)}
+
+{/* transcation section */}
+{activeTab === "transactions" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">All Transactions</h1>
+
+    <div className="bg-card border border-border rounded-xl overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-muted">
+          <tr>
+            {["Txn ID", "User", "Amount", "Date", "Status"].map((h) => (
+              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {allTransactions.map((t) => (
+            <tr key={t.id} className="data-table-row">
+              <td className="px-5 py-3 font-mono text-xs">{t.id}</td>
+              <td className="px-5 py-3">{t.user}</td>
+              <td className="px-5 py-3 font-semibold">{t.amount}</td>
+              <td className="px-5 py-3">{t.date}</td>
+              <td className="px-5 py-3">
+                <span className={
+                  t.status === "Success"
+                    ? "badge-success"
+                    : t.status === "Pending"
+                    ? "badge-warning"
+                    : "badge-destructive"
+                }>
+                  {t.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+)}
+{/* analytics section */}
+{activeTab === "analytics" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Platform Analytics</h1>
+
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {[
+        { label: "Total Farmers", value: "1,248" },
+        { label: "Total Businesses", value: "326" },
+        { label: "Orders", value: "5,820" },
+        { label: "Revenue", value: "₹1.8Cr" },
+      ].map((s) => (
+        <div key={s.label} className="stat-card">
+          <div className="text-xl font-bold">{s.value}</div>
+          <div className="text-xs text-muted-foreground">{s.label}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+{/* reports */}
+{activeTab === "reports" && (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Reports</h1>
+
+    <div className="grid md:grid-cols-3 gap-6">
+      {["Sales Report", "Farmer Activity", "Monthly Revenue"].map((r) => (
+        <div key={r} className="bg-card border border-border rounded-xl p-6 text-center">
+          <h3 className="font-semibold">{r}</h3>
+          <button className="mt-4 px-4 py-2 bg-primary text-white rounded-md text-sm">
+            Download PDF
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+{/* settings */}
+{activeTab === "settings" && (
+  <div className="space-y-6 max-w-xl">
+    <h1 className="font-display text-2xl font-bold">Admin Settings</h1>
+
+    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+      <input
+        type="text"
+        placeholder="Platform Name"
+        className="w-full px-4 py-2 border rounded-lg bg-background"
+      />
+      <input
+        type="email"
+        placeholder="Support Email"
+        className="w-full px-4 py-2 border rounded-lg bg-background"
+      />
+      <button className="px-6 py-2 bg-primary text-white rounded-lg">
+        Save Settings
+      </button>
+    </div>
+  </div>
+)}
     </DashboardLayout>
   );
 };
