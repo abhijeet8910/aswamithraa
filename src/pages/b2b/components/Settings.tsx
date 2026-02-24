@@ -7,7 +7,7 @@ const Settings = () => {
   return (
     <div className="space-y-8">
 
-      <div>
+      {/* <div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">
           Business Settings
         </h1>
@@ -15,6 +15,14 @@ const Settings = () => {
         <p className="text-gray-500 text-sm">
           Complete business verification
         </p>
+      </div> */}
+       <div className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-2xl p-6 shadow-lg flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold">    Business Settings</h1>
+          <p className="text-blue-100 text-sm">
+          Complete business verification
+          </p>
+        </div>
       </div>
 
       <div className="bg-white shadow-sm border rounded-xl p-6 space-y-4">

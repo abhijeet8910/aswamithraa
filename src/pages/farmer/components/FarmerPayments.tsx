@@ -133,7 +133,7 @@ const FarmerPayments = () => {
 
       {/* TABLE */}
 
-      <div className="bg-white border border-green-100 rounded-xl shadow-sm overflow-hidden">
+      {/* <div className="bg-white border border-green-100 rounded-xl shadow-sm overflow-hidden">
 
         <table className="w-full text-sm">
 
@@ -183,6 +183,53 @@ const FarmerPayments = () => {
 
       </div>
 
+ */}
+
+{/* // TABLE WRAPPER FIX */}
+<div className="bg-white border border-green-100 rounded-xl shadow-sm overflow-x-auto w-full">
+
+  <table className="w-full min-w-[900px] text-sm">
+
+    <thead className="bg-green-50">
+      <tr>
+        {["Transaction", "Buyer", "Amount", "Method", "Date", "Status", "Action"].map(
+          (h) => (
+            <th key={h} className="text-left px-5 py-3 font-semibold whitespace-nowrap">
+              {h}
+            </th>
+          )
+        )}
+      </tr>
+    </thead>
+
+    <tbody>
+      {filteredPayments.map((p) => (
+        <tr key={p.id} className="border-t hover:bg-green-50/40">
+
+          <td className="px-5 py-3 font-medium whitespace-nowrap">{p.id}</td>
+          <td className="px-5 py-3 whitespace-nowrap">{p.buyer}</td>
+          <td className="px-5 py-3 font-semibold whitespace-nowrap">{p.amount}</td>
+          <td className="px-5 py-3 whitespace-nowrap">{p.method}</td>
+          <td className="px-5 py-3 whitespace-nowrap">{p.date}</td>
+          <td className="px-5 py-3 whitespace-nowrap">{statusBadge(p.status)}</td>
+
+          <td className="px-5 py-3">
+            <div className="flex flex-nowrap gap-2">
+              <button
+                onClick={() => setSelected(p)}
+                className="px-3 py-1 text-xs bg-green-600 hover:bg-green-700 text-white rounded-md whitespace-nowrap"
+              >
+                View
+              </button>
+            </div>
+          </td>
+
+        </tr>
+      ))}
+    </tbody>
+
+  </table>
+</div>
 
       {/* MODAL */}
 

@@ -40,17 +40,15 @@ const initialProducts: Product[] = [
 function statusBadge(status: ProductStatus) {
   const styles = {
     Available:
-      "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md",
+      "bg-gradient-to-r from-green-500 to-emerald-600 text-white",
     "Low Stock":
-      "bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-md",
+      "bg-gradient-to-r from-yellow-400 to-orange-500 text-white",
     "Out of Stock":
-      "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md",
+      "bg-gradient-to-r from-red-500 to-rose-600 text-white",
   };
 
   return (
-    <span
-      className={`px-3 py-1 text-xs rounded-full font-semibold ${styles[status]}`}
-    >
+    <span className={`px-3 py-1 text-xs rounded-full font-semibold ${styles[status]}`}>
       {status}
     </span>
   );
@@ -59,8 +57,8 @@ function statusBadge(status: ProductStatus) {
 export default function FarmerProducts() {
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [open, setOpen] = useState(false);
-  const [customCategory, setCustomCategory] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [customCategory, setCustomCategory] = useState("");
 
   const [form, setForm] = useState<Product>({
     id: "",
@@ -104,7 +102,6 @@ export default function FarmerProducts() {
 
     setOpen(false);
     setEditingId(null);
-    setCustomCategory("");
   };
 
   const handleDelete = (id: string) => {
@@ -122,14 +119,14 @@ export default function FarmerProducts() {
 
       {/* HEADER */}
 
-      <div className="flex justify-between items-center bg-gradient-to-r from-green-600 to-emerald-500 p-6 rounded-2xl text-white shadow">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 bg-gradient-to-r from-green-600 to-emerald-500 p-6 rounded-2xl text-white shadow">
 
         <div>
-          <h1 className="text-3xl font-bold ">
+          <h1 className="text-2xl md:text-3xl font-bold">
             Product Management
           </h1>
 
-          <p className="text-sm text-white">
+          <p className="text-sm">
             Manage your agricultural products and stock
           </p>
         </div>
@@ -139,8 +136,8 @@ export default function FarmerProducts() {
             setOpen(true);
             setEditingId(null);
           }}
-          className="flex items-center gap-2 px-5 py-2 rounded-lg text-white
-          bg-gradient-to-r from-blue-500 to-indigo-600 hover:scale-105 transition shadow-lg"
+          className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg
+          bg-gradient-to-r from-blue-500 to-indigo-600 hover:scale-105 transition"
         >
           <Plus size={16} />
           Add Product
@@ -148,95 +145,87 @@ export default function FarmerProducts() {
 
       </div>
 
-      {/* PRODUCTS TABLE */}
+      {/* TABLE */}
 
-      <div className="bg-white border rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-white border rounded-xl shadow-lg overflow-x-auto w-full">
 
-        <table className="w-full">
+<table className="w-full min-w-[900px]">
 
-          <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
+  <thead className="bg-gradient-to-r from-green-50 to-emerald-50">
+    <tr>
+      {["Name", "Category", "Stock", "Price", "Status", "Actions"].map(
+        (h) => (
+          <th
+            key={h}
+            className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase whitespace-nowrap"
+          >
+            {h}
+          </th>
+        )
+      )}
+    </tr>
+  </thead>
 
-            <tr>
-              {["Name", "Category", "Stock", "Price", "Status", "Actions"].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="text-left px-6 py-4 text-xs font-semibold text-gray-600 uppercase"
-                  >
-                    {h}
-                  </th>
-                )
-              )}
-            </tr>
+  <tbody>
+    {products.map((p) => (
+      <tr key={p.id} className="border-t hover:bg-green-50 transition">
 
-          </thead>
+        <td className="px-6 py-4 font-medium whitespace-nowrap">
+          {p.name}
+        </td>
 
-          <tbody>
+        <td className="px-6 py-4 whitespace-nowrap">
+          {p.category}
+        </td>
 
-            {products.map((p) => (
-              <tr
-                key={p.id}
-                className="border-t hover:bg-green-50 transition"
-              >
+        {/* FIXED STOCK BREAK */}
+        <td className="px-6 py-4 whitespace-nowrap">
+          {p.quantity} {p.unit}
+        </td>
 
-                <td className="px-6 py-4 font-medium">{p.name}</td>
+        <td className="px-6 py-4 font-semibold text-green-700 whitespace-nowrap">
+          {p.price}
+        </td>
 
-                <td className="px-6 py-4">{p.category}</td>
+        <td className="px-6 py-4 whitespace-nowrap">
+          {statusBadge(p.status)}
+        </td>
 
-                <td className="px-6 py-4">
-                  {p.quantity} {p.unit}
-                </td>
+        {/* FIXED ACTION BUTTONS */}
+        <td className="px-6 py-4">
+          <div className="flex flex-nowrap gap-2">
+            <button
+              onClick={() => handleEdit(p)}
+              className="px-3 py-1 text-xs rounded-md text-white bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+            >
+              Edit
+            </button>
 
-                <td className="px-6 py-4 font-semibold text-green-700">
-                  {p.price}
-                </td>
+            <button
+              onClick={() => handleDelete(p.id)}
+              className="px-3 py-1 text-xs rounded-md text-white bg-red-600 hover:bg-red-700 whitespace-nowrap"
+            >
+              Delete
+            </button>
+          </div>
+        </td>
 
-                <td className="px-6 py-4">
-                  {statusBadge(p.status)}
-                </td>
+      </tr>
+    ))}
+  </tbody>
 
-                <td className="px-6 py-4 flex gap-2">
-
-                  <button
-                    onClick={() => handleEdit(p)}
-                    className="px-3 py-1 text-xs rounded-md text-white
-                    bg-gradient-to-r from-blue-500 to-indigo-600
-                    hover:scale-105 transition"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(p.id)}
-                    className="px-3 py-1 text-xs rounded-md text-white
-                    bg-gradient-to-r from-red-500 to-rose-600
-                    hover:scale-105 transition"
-                  >
-                    Delete
-                  </button>
-
-                </td>
-
-              </tr>
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
-
+</table>
+</div>
       {/* MODAL */}
 
       {open && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
 
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-
-          <div className="bg-white rounded-xl w-full max-w-lg p-6 relative shadow-2xl">
+          <div className="bg-white rounded-xl w-full max-w-lg p-6 relative shadow-xl">
 
             <button
               onClick={() => setOpen(false)}
-              className="absolute right-4 top-4 text-gray-500 hover:text-black"
+              className="absolute right-4 top-4 text-gray-500"
             >
               <X size={18} />
             </button>
@@ -252,13 +241,15 @@ export default function FarmerProducts() {
 
               <input
                 name="name"
+                value={form.name}
                 placeholder="Product Name"
                 onChange={handleChange}
-                className="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-400 outline-none"
+                className="border rounded-lg px-4 py-2"
               />
 
               <select
                 name="category"
+                value={form.category}
                 onChange={handleChange}
                 className="border rounded-lg px-4 py-2"
               >
@@ -280,6 +271,7 @@ export default function FarmerProducts() {
 
               <input
                 name="quantity"
+                value={form.quantity}
                 type="number"
                 placeholder="Quantity"
                 onChange={handleChange}
@@ -288,6 +280,7 @@ export default function FarmerProducts() {
 
               <select
                 name="unit"
+                value={form.unit}
                 onChange={handleChange}
                 className="border rounded-lg px-4 py-2"
               >
@@ -298,6 +291,7 @@ export default function FarmerProducts() {
 
               <input
                 name="price"
+                value={form.price}
                 placeholder="Price"
                 onChange={handleChange}
                 className="border rounded-lg px-4 py-2"
@@ -305,6 +299,7 @@ export default function FarmerProducts() {
 
               <select
                 name="status"
+                value={form.status}
                 onChange={handleChange}
                 className="border rounded-lg px-4 py-2"
               >
@@ -318,8 +313,7 @@ export default function FarmerProducts() {
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-lg text-white
-                  bg-gradient-to-r from-green-600 to-emerald-500
-                  hover:scale-105 transition shadow-md"
+                  bg-gradient-to-r from-green-600 to-emerald-500"
                 >
                   Save Product
                 </button>
@@ -331,7 +325,6 @@ export default function FarmerProducts() {
           </div>
 
         </div>
-
       )}
 
     </div>

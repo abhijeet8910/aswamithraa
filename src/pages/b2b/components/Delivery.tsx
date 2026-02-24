@@ -42,13 +42,21 @@ const Delivery = () => {
   return (
     <div className="space-y-6">
 
-      <div>
+      {/* <div>
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
           Delivery Tracking
         </h1>
         <p className="text-gray-500 text-sm">
           Monitor shipment updates
         </p>
+      </div> */}
+      <div className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white rounded-2xl p-6 shadow-lg flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold"> Delivery Tracking</h1>
+          <p className="text-blue-100 text-sm">
+          Monitor shipment updates
+          </p>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
