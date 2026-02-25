@@ -48,7 +48,8 @@ const adminNav: NavItem[] = [
   { label: "Farmers", icon: Wheat, id: "farmers" },
   { label: "Businesses", icon: Building2, id: "businesses" },
   { label: "Customers", icon: Users, id: "customers" },
-  {label: "Delivery", icon: Truck, id: "delivery"},
+  { label: "Applications", icon: FileText, id: "applications" },
+  { label: "Delivery", icon: Truck, id: "delivery" },
   { label: "Transactions", icon: CreditCard, id: "transactions" },
   { label: "Analytics", icon: BarChart3, id: "analytics" },
   { label: "Reports", icon: FileText, id: "reports" },
@@ -101,9 +102,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 dashboard-sidebar flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 dashboard-sidebar flex flex-col transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-sidebar-border/50">
@@ -165,7 +165,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
         {/* Logout */}
         <div className="px-3 pb-4">
           <button
-            onClick={logout}
+            onClick={async () => { await logout(); window.location.href = "/"; }}
             className="nav-item w-full text-left"
             style={{ color: "hsl(var(--destructive))" }}
           >

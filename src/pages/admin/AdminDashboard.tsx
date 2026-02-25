@@ -1,441 +1,599 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
   Users, Wheat, Building2, CreditCard, TrendingUp, ArrowUpRight,
-  CheckCircle, XCircle, Clock, AlertCircle, Download, Eye, Shield
+  CheckCircle, XCircle, Clock, Loader2, FileText, MapPin, Phone, Mail
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import DeliveryManagement from "./component/DeliveryManagement";
 import Farmers from "./component/Farmers";
-
-const transactionTrend = [
-  { month: "Aug", volume: 1240000, count: 342 },
-  { month: "Sep", volume: 1580000, count: 428 },
-  { month: "Oct", volume: 1420000, count: 389 },
-  { month: "Nov", volume: 1890000, count: 512 },
-  { month: "Dec", volume: 2240000, count: 618 },
-  { month: "Jan", volume: 2080000, count: 574 },
-];
-
-const categoryPie = [
-  { name: "Grains", value: 38 },
-  { name: "Vegetables", value: 32 },
-  { name: "Spices", value: 18 },
-  { name: "Fruits", value: 12 },
-];
-// ---------------- FARMERS ----------------
-export const farmersData = [
-  { id: "F-1001", name: "Ramu Reddy", location: "Telangana", products: 12, joined: "Oct 2025", status: "Approved", earnings: "₹2,45,000" },
-  { id: "F-1002", name: "Lakshmi Bai", location: "Maharashtra", products: 8, joined: "Nov 2025", status: "Pending", earnings: "₹1,12,000" },
-  { id: "F-1003", name: "Govind Rao", location: "Karnataka", products: 15, joined: "Sep 2025", status: "Suspended", earnings: "₹3,01,000" },
-];
-
-// ---------------- BUSINESSES ----------------
-const businessData = [
-  { id: "B-201", name: "FreshMart Pvt Ltd", gst: "36AABCS1234F1Z5", orders: 142, volume: "₹18.4L", status: "Verified" },
-  { id: "B-202", name: "AgroBulk Traders", gst: "27AACCA4567D1Z2", orders: 89, volume: "₹9.2L", status: "Pending" },
-  { id: "B-203", name: "GreenSource Foods", gst: "29AAACG2233L1Z4", orders: 201, volume: "₹22.1L", status: "Verified" },
-];
-
-// ---------------- CUSTOMERS ----------------
-const customersData = [
-  { id: "C-301", name: "Anita Sharma", email: "anita@gmail.com", orders: 14, spent: "₹28,400", status: "Active" },
-  { id: "C-302", name: "Rahul Verma", email: "rahul@gmail.com", orders: 6, spent: "₹7,200", status: "Active" },
-  { id: "C-303", name: "Priya Nair", email: "priya@gmail.com", orders: 0, spent: "₹0", status: "Blocked" },
-];
-
-// ---------------- DELIVERY ----------------
-const deliveryData = [
-  { id: "DLV-501", order: "ORD-1001", partner: "BlueDart", status: "In Transit", eta: "2 Days" },
-  { id: "DLV-502", order: "ORD-1002", partner: "Delhivery", status: "Delivered", eta: "Completed" },
-  { id: "DLV-503", order: "ORD-1003", partner: "DTDC", status: "Delayed", eta: "1 Day Delay" },
-];
-
-// ---------------- TRANSACTIONS ----------------
-const allTransactions = [
-  { id: "TXN-9001", user: "FreshMart", amount: "₹1,36,000", date: "Jan 20", status: "Success" },
-  { id: "TXN-9002", user: "Lakshmi Bai", amount: "₹18,500", date: "Jan 21", status: "Pending" },
-  { id: "TXN-9003", user: "Anita Sharma", amount: "₹980", date: "Jan 22", status: "Failed" },
-];
+import { userService } from "@/services/user.service";
+import { orderService } from "@/services/order.service";
+import { paymentService } from "@/services/payment.service";
+import { productService } from "@/services/product.service";
 
 const PIE_COLORS = ["hsl(150,57%,22%)", "hsl(38,90%,55%)", "hsl(210,80%,45%)", "hsl(142,70%,35%)"];
 
-const pendingApprovals = [
-  { id: "F-2841", name: "Ramesh Patel", type: "Farmer", location: "Rajkot, Gujarat", date: "Jan 23", docs: "Complete" },
-  { id: "B-0192", name: "Agro Fresh Pvt Ltd", type: "Business", location: "Mumbai, Maharashtra", date: "Jan 22", docs: "Pending" },
-  { id: "F-2839", name: "Sunita Devi", type: "Farmer", location: "Patna, Bihar", date: "Jan 21", docs: "Complete" },
-  { id: "B-0191", name: "GreenSource Foods", type: "Business", location: "Pune, Maharashtra", date: "Jan 20", docs: "Complete" },
-];
-
-const recentTransactions = [
-  { id: "TXN-8821", from: "Ramesh Patel", to: "Agro Fresh Pvt Ltd", amount: "₹85,400", mode: "Bank Transfer", status: "Completed", date: "Jan 23" },
-  { id: "TXN-8820", from: "Sunita Devi", to: "Priya Sharma", amount: "₹1,250", mode: "UPI", status: "Completed", date: "Jan 23" },
-  { id: "TXN-8819", from: "Govind Rao", to: "B2B Corp Ltd", amount: "₹42,000", mode: "Bank Transfer", status: "Processing", date: "Jan 22" },
-  { id: "TXN-8818", from: "Lakshmi Bai", to: "Anita Kumar", amount: "₹980", mode: "UPI", status: "Failed", date: "Jan 22" },
-];
-
 const txnStatus = (status: string) => {
-  if (status === "Completed") return <span className="badge-success">{status}</span>;
-  if (status === "Processing") return <span className="badge-warning">{status}</span>;
-  return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" style={{ background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))" }}>{status}</span>;
+  if (status === "Completed") return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">{status}</span>;
+  if (status === "Pending") return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">{status}</span>;
+  return <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">{status}</span>;
 };
 
 const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [approvals, setApprovals] = useState(pendingApprovals);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ farmers: 0, businesses: 0, customers: 0, volume: 0 });
+  const [pendingUsers, setPendingUsers] = useState<any[]>([]);
+  const [recentPayments, setRecentPayments] = useState<any[]>([]);
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [allPayments, setAllPayments] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
 
-  const handleApprove = (id: string) => setApprovals((prev) => prev.filter((a) => a.id !== id));
-  const handleReject = (id: string) => setApprovals((prev) => prev.filter((a) => a.id !== id));
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const [usersRes, ordersRes, paymentsRes, productsRes] = await Promise.all([
+          userService.getAllUsers({ limit: 200 }).catch(() => ({ users: [] })),
+          orderService.getAll({ limit: 100 }).catch(() => ({ orders: [] })),
+          paymentService.getAll({ limit: 100 }).catch(() => ({ payments: [] })),
+          productService.getAll({ limit: 200 }).catch(() => ({ products: [] })),
+        ]);
+
+        const users = usersRes?.users || [];
+        const orders = ordersRes?.orders || [];
+        const payments = paymentsRes?.payments || [];
+        const products = productsRes?.products || [];
+
+        const farmers = users.filter((u: any) => u.role === "farmer").length;
+        const businesses = users.filter((u: any) => u.role === "b2b").length;
+        const customers = users.filter((u: any) => u.role === "customer").length;
+        const volume = orders.reduce((s: number, o: any) => s + (o.totalAmount || 0), 0);
+
+        setStats({ farmers, businesses, customers, volume });
+        setPendingUsers(users.filter((u: any) => !u.isVerified).slice(0, 5));
+        setAllUsers(users);
+        setRecentPayments(payments.slice(0, 5));
+        setAllPayments(payments);
+
+        const monthMap: Record<string, number> = {};
+        orders.forEach((o: any) => {
+          const m = new Date(o.createdAt).toLocaleDateString("en-US", { month: "short" });
+          monthMap[m] = (monthMap[m] || 0) + (o.totalAmount || 0);
+        });
+        setChartData(Object.entries(monthMap).map(([month, volume]) => ({ month, volume })));
+
+        const catMap: Record<string, number> = {};
+        products.forEach((p: any) => {
+          const cat = p.category?.name || p.category || "Other";
+          catMap[cat] = (catMap[cat] || 0) + 1;
+        });
+        const total = products.length || 1;
+        setCategoryData(Object.entries(catMap).map(([name, count]) => ({ name, value: Math.round((count / total) * 100) })));
+      } catch (err) {
+        console.error("Admin dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  const handleVerify = async (id: string) => {
+    try {
+      await userService.verifyUser(id);
+      setPendingUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (err) {
+      console.error("Failed to verify:", err);
+    }
+  };
+
+  const handleBlock = async (id: string) => {
+    try {
+      await userService.blockUser(id);
+      setPendingUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (err) {
+      console.error("Failed to block:", err);
+    }
+  };
+
+  const fmt = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(2)}Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(2)}L` : `₹${n.toLocaleString()}`;
+  const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
       {activeTab === "dashboard" && (
-        <div className="space-y-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">Admin Control Panel</h1>
-              <p className="text-muted-foreground text-sm">Platform overview and management</p>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 rounded-3xl p-8 text-white shadow-xl shadow-gray-900/20 relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl mix-blend-overlay"></div>
+            <div className="relative z-10 w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Admin Control Panel</h1>
+                <p className="text-gray-300 text-base font-medium">Platform overview and management</p>
+              </div>
             </div>
-            <button className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
-              <Download className="w-4 h-4" />
-              Export Report
-            </button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              { label: "Registered Farmers", value: "12,548", icon: Wheat, delta: "+142 this month", color: "hsl(var(--primary))" },
-              { label: "B2B Businesses", value: "862", icon: Building2, delta: "+18 this month", color: "hsl(210 80% 45%)" },
-              { label: "Active Customers", value: "2,14,680", icon: Users, delta: "+3,200 this month", color: "hsl(var(--success))" },
-              { label: "Total Volume (MTD)", value: "₹2.08Cr", icon: CreditCard, delta: "+16% vs last month", color: "hsl(var(--secondary))" },
-            ].map((stat) => {
-              const Icon = stat.icon;
-              return (
-                <div key={stat.label} className="stat-card">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${stat.color}18` }}>
-                      <Icon className="w-4 h-4" style={{ color: stat.color }} />
+          {loading ? (
+            <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { label: "Registered Farmers", value: stats.farmers.toLocaleString(), icon: Wheat, color: "hsl(150,57%,22%)" },
+                  { label: "B2B Businesses", value: stats.businesses.toLocaleString(), icon: Building2, color: "hsl(210,80%,45%)" },
+                  { label: "Customers", value: stats.customers.toLocaleString(), icon: Users, color: "hsl(142,70%,35%)" },
+                  { label: "Total Volume", value: fmt(stats.volume), icon: CreditCard, color: "hsl(38,90%,55%)" },
+                ].map((stat) => {
+                  const Icon = stat.icon;
+                  return (
+                    <div key={stat.label} className="stat-card">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${stat.color}18` }}>
+                          <Icon className="w-4 h-4" style={{ color: stat.color }} />
+                        </div>
+                        <ArrowUpRight className="w-3.5 h-3.5 text-green-600" />
+                      </div>
+                      <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
+                      <div className="text-xs font-medium text-foreground">{stat.label}</div>
                     </div>
-                    <ArrowUpRight className="w-3.5 h-3.5" style={{ color: "hsl(var(--success))" }} />
-                  </div>
-                  <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
-                  <div className="text-xs font-medium text-foreground mb-0.5">{stat.label}</div>
-                  <div className="text-xs text-muted-foreground">{stat.delta}</div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="grid lg:grid-cols-3 gap-6">
-            {/* Transaction Volume Chart */}
-            <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h3 className="font-semibold text-foreground">Transaction Volume</h3>
-                  <p className="text-xs text-muted-foreground">Monthly platform transaction flow (₹)</p>
-                </div>
+                  );
+                })}
               </div>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={transactionTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(150 12% 88%)" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`} />
-                  <Tooltip formatter={(v: number) => [`₹${(v / 100000).toFixed(2)}L`, "Volume"]} />
-                  <Bar dataKey="volume" fill="hsl(150,57%,22%)" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
 
-            {/* Category Breakdown */}
-            <div className="bg-card rounded-xl border border-border p-5" style={{ boxShadow: "var(--shadow-card)" }}>
-              <h3 className="font-semibold text-foreground mb-4">Trade by Category</h3>
-              <ResponsiveContainer width="100%" height={160}>
-                <PieChart>
-                  <Pie data={categoryPie} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value">
-                    {categoryPie.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-                  </Pie>
-                  <Tooltip formatter={(v) => [`${v}%`, ""]} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                {categoryPie.map((c, i) => (
-                  <div key={c.name} className="flex items-center gap-1.5 text-xs">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[i] }} />
-                    <span className="text-muted-foreground">{c.name}</span>
-                    <span className="font-semibold text-foreground ml-auto">{c.value}%</span>
+              <div className="grid lg:grid-cols-3 gap-6">
+                {chartData.length > 0 && (
+                  <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5 shadow-sm">
+                    <h3 className="font-semibold text-foreground mb-4">Transaction Volume</h3>
+                    <ResponsiveContainer width="100%" height={200}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${(v / 100000).toFixed(1)}L`} />
+                        <Tooltip formatter={(v: number) => [`₹${v.toLocaleString()}`, "Volume"]} />
+                        <Bar dataKey="volume" fill="hsl(150,57%,22%)" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
+                )}
 
-          {/* Pending Approvals */}
-          <div className="bg-card rounded-xl border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="p-5 border-b border-border flex items-center justify-between">
-              <h3 className="font-semibold text-foreground flex items-center gap-2">
-                <Clock className="w-4 h-4" style={{ color: "hsl(var(--warning))" }} />
-                Pending Approvals
-                <span className="ml-1 text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: "hsl(var(--warning) / 0.15)", color: "hsl(var(--warning))" }}>
-                  {approvals.length}
-                </span>
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr style={{ background: "hsl(var(--muted) / 0.5)" }}>
-                    {["ID", "Name", "Type", "Location", "Date", "Documents", "Actions"].map((h) => (
-                      <th key={h} className="text-left text-xs font-semibold text-muted-foreground px-5 py-3">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {approvals.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="px-5 py-8 text-center text-muted-foreground text-sm">
-                        All approvals processed ✅
-                      </td>
-                    </tr>
-                  ) : (
-                    approvals.map((a) => (
-                      <tr key={a.id} className="data-table-row">
-                        <td className="px-5 py-3.5 text-xs font-mono text-muted-foreground">{a.id}</td>
-                        <td className="px-5 py-3.5 text-sm font-medium text-foreground">{a.name}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={a.type === "Farmer" ? "badge-success" : "badge-info"}>{a.type}</span>
-                        </td>
-                        <td className="px-5 py-3.5 text-xs text-muted-foreground">{a.location}</td>
-                        <td className="px-5 py-3.5 text-xs text-muted-foreground">{a.date}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={a.docs === "Complete" ? "badge-success" : "badge-warning"}>{a.docs}</span>
-                        </td>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleApprove(a.id)}
-                              className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors"
-                              style={{ background: "hsl(var(--success) / 0.1)", color: "hsl(var(--success))" }}
-                            >
-                              <CheckCircle className="w-3.5 h-3.5" /> Approve
-                            </button>
-                            <button
-                              onClick={() => handleReject(a.id)}
-                              className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-medium transition-colors"
-                              style={{ background: "hsl(var(--destructive) / 0.1)", color: "hsl(var(--destructive))" }}
-                            >
-                              <XCircle className="w-3.5 h-3.5" /> Reject
-                            </button>
-                          </div>
-                        </td>
+                {categoryData.length > 0 && (
+                  <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
+                    <h3 className="font-semibold text-foreground mb-4">Products by Category</h3>
+                    <ResponsiveContainer width="100%" height={160}>
+                      <PieChart>
+                        <Pie data={categoryData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value">
+                          {categoryData.map((_: any, i: number) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                        </Pie>
+                        <Tooltip formatter={(v) => [`${v}%`, ""]} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {categoryData.map((c: any, i: number) => (
+                        <div key={c.name} className="flex items-center gap-1.5 text-xs">
+                          <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: PIE_COLORS[i % PIE_COLORS.length] }} />
+                          <span className="text-muted-foreground">{c.name}</span>
+                          <span className="font-semibold text-foreground ml-auto">{c.value}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Pending Approvals */}
+              <div className="bg-card rounded-xl border border-border shadow-sm">
+                <div className="p-5 border-b border-border flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-yellow-600" /> Pending Approvals
+                    <span className="ml-1 text-xs px-2 py-0.5 rounded-full font-bold bg-yellow-100 text-yellow-700">{pendingUsers.length}</span>
+                  </h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        {["Name", "Email", "Role", "Joined", "Actions"].map((h) => (
+                          <th key={h} className="text-left text-xs font-semibold text-gray-500 px-5 py-3">{h}</th>
+                        ))}
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+                    </thead>
+                    <tbody>
+                      {pendingUsers.length === 0 ? (
+                        <tr><td colSpan={5} className="px-5 py-8 text-center text-gray-500 text-sm">All approvals processed ✅</td></tr>
+                      ) : (
+                        pendingUsers.map((u: any) => (
+                          <tr key={u._id} className="border-t hover:bg-gray-50">
+                            <td className="px-5 py-3 font-medium">{u.name}</td>
+                            <td className="px-5 py-3 text-sm text-gray-500">{u.email}</td>
+                            <td className="px-5 py-3">
+                              <span className={`px-2 py-0.5 text-xs rounded-full ${u.role === "farmer" ? "bg-green-100 text-green-700" : u.role === "b2b" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-600"}`}>{u.role}</span>
+                            </td>
+                            <td className="px-5 py-3 text-xs text-gray-500">{fmtDate(u.createdAt)}</td>
+                            <td className="px-5 py-3">
+                              <div className="flex items-center gap-2">
+                                <button onClick={() => handleVerify(u._id)} className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-medium bg-green-100 text-green-700 hover:bg-green-200">
+                                  <CheckCircle className="w-3.5 h-3.5" /> Approve
+                                </button>
+                                <button onClick={() => handleBlock(u._id)} className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-lg font-medium bg-red-100 text-red-700 hover:bg-red-200">
+                                  <XCircle className="w-3.5 h-3.5" /> Reject
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
-          {/* Recent Transactions */}
-          <div className="bg-card rounded-xl border border-border" style={{ boxShadow: "var(--shadow-card)" }}>
-            <div className="p-5 border-b border-border">
-              <h3 className="font-semibold text-foreground">Recent Transactions</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr style={{ background: "hsl(var(--muted) / 0.5)" }}>
-                    {["Txn ID", "From", "To", "Amount", "Mode", "Date", "Status"].map((h) => (
-                      <th key={h} className="text-left text-xs font-semibold text-muted-foreground px-5 py-3">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentTransactions.map((t) => (
-                    <tr key={t.id} className="data-table-row">
-                      <td className="px-5 py-3.5 text-xs font-mono text-muted-foreground">{t.id}</td>
-                      <td className="px-5 py-3.5 text-sm text-foreground">{t.from}</td>
-                      <td className="px-5 py-3.5 text-sm text-foreground">{t.to}</td>
-                      <td className="px-5 py-3.5 text-sm font-semibold text-foreground">{t.amount}</td>
-                      <td className="px-5 py-3.5 text-xs text-muted-foreground">{t.mode}</td>
-                      <td className="px-5 py-3.5 text-xs text-muted-foreground">{t.date}</td>
-                      <td className="px-5 py-3.5">{txnStatus(t.status)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              {/* Recent Payments */}
+              {recentPayments.length > 0 && (
+                <div className="bg-card rounded-xl border border-border shadow-sm">
+                  <div className="p-5 border-b border-border"><h3 className="font-semibold text-foreground">Recent Transactions</h3></div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          {["From", "To", "Amount", "Mode", "Date", "Status"].map((h) => (
+                            <th key={h} className="text-left text-xs font-semibold text-gray-500 px-5 py-3">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {recentPayments.map((t: any) => (
+                          <tr key={t._id} className="border-t hover:bg-gray-50">
+                            <td className="px-5 py-3 text-sm">{t.from?.name || "—"}</td>
+                            <td className="px-5 py-3 text-sm">{t.to?.name || "—"}</td>
+                            <td className="px-5 py-3 text-sm font-semibold">₹{t.amount?.toLocaleString()}</td>
+                            <td className="px-5 py-3 text-xs">{t.mode}</td>
+                            <td className="px-5 py-3 text-xs">{fmtDate(t.createdAt)}</td>
+                            <td className="px-5 py-3">{txnStatus(t.status)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {activeTab === "farmers" && <Farmers />}
+
+      {activeTab === "businesses" && (
+        <BusinessSection users={allUsers.filter((u: any) => u.role === "b2b")} loading={loading} />
+      )}
+
+      {activeTab === "customers" && (
+        <CustomerSection users={allUsers.filter((u: any) => u.role === "customer")} loading={loading} />
+      )}
+
+      {activeTab === "delivery" && <DeliveryManagement />}
+
+      {activeTab === "applications" && <ApplicationsSection />}
+
+      {activeTab === "transactions" && (
+        <TransactionSection payments={allPayments} loading={loading} />
+      )}
+
+      {activeTab === "analytics" && (
+        <div className="space-y-6">
+          <h1 className="font-display text-2xl font-bold">Platform Analytics</h1>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { label: "Total Farmers", value: stats.farmers.toLocaleString() },
+              { label: "Total Businesses", value: stats.businesses.toLocaleString() },
+              { label: "Total Customers", value: stats.customers.toLocaleString() },
+              { label: "Revenue", value: fmt(stats.volume) },
+            ].map((s) => (
+              <div key={s.label} className="stat-card">
+                <div className="text-xl font-bold">{s.value}</div>
+                <div className="text-xs text-muted-foreground">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* famers section */}
-      {activeTab === "farmers" && (
-  <Farmers/>
-)}
-
-{/* business section */}
-{activeTab === "businesses" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Business Accounts</h1>
-
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {businessData.map((b) => (
-        <div key={b.id} className="bg-card border border-border rounded-xl p-5 space-y-2">
-          <div className="flex justify-between items-center">
-            <h3 className="font-semibold">{b.name}</h3>
-            <span className={b.status === "Verified" ? "badge-success" : "badge-warning"}>
-              {b.status}
-            </span>
+      {activeTab === "reports" && (
+        <div className="space-y-6">
+          <h1 className="font-display text-2xl font-bold">Reports</h1>
+          <div className="grid md:grid-cols-3 gap-6">
+            {["Sales Report", "Farmer Activity", "Monthly Revenue"].map((r) => (
+              <div key={r} className="bg-card border border-border rounded-xl p-6 text-center">
+                <h3 className="font-semibold">{r}</h3>
+                <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700">Download PDF</button>
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-muted-foreground">GST: {b.gst}</p>
-          <p className="text-sm">Orders: <span className="font-semibold">{b.orders}</span></p>
-          <p className="text-sm">Volume: <span className="font-semibold">{b.volume}</span></p>
         </div>
-      ))}
-    </div>
-  </div>
-)}
-  {/* customers section */}
-  {activeTab === "customers" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Customers</h1>
+      )}
 
-    <div className="bg-card border border-border rounded-xl overflow-x-auto">
-      <table className="w-full min-w-[800px]">
-        <thead className="bg-muted">
-          <tr>
-            {["ID", "Name", "Email", "Orders", "Spent", "Status"].map((h) => (
-              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {customersData.map((c) => (
-            <tr key={c.id} className="data-table-row">
-              <td className="px-5 py-3 text-xs font-mono">{c.id}</td>
-              <td className="px-5 py-3 font-medium">{c.name}</td>
-              <td className="px-5 py-3">{c.email}</td>
-              <td className="px-5 py-3">{c.orders}</td>
-              <td className="px-5 py-3 font-semibold">{c.spent}</td>
-              <td className="px-5 py-3">
-                <span className={c.status === "Active" ? "badge-success" : "badge-destructive"}>
-                  {c.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
-
-{/* delivery section */}
-{activeTab === "delivery" && (
-  <DeliveryManagement/>
-)}
-
-{/* transcation section */}
-{activeTab === "transactions" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">All Transactions</h1>
-
-    <div className="bg-card border border-border rounded-xl overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-muted">
-          <tr>
-            {["Txn ID", "User", "Amount", "Date", "Status"].map((h) => (
-              <th key={h} className="px-5 py-3 text-left text-xs text-muted-foreground">{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {allTransactions.map((t) => (
-            <tr key={t.id} className="data-table-row">
-              <td className="px-5 py-3 font-mono text-xs">{t.id}</td>
-              <td className="px-5 py-3">{t.user}</td>
-              <td className="px-5 py-3 font-semibold">{t.amount}</td>
-              <td className="px-5 py-3">{t.date}</td>
-              <td className="px-5 py-3">
-                <span className={
-                  t.status === "Success"
-                    ? "badge-success"
-                    : t.status === "Pending"
-                    ? "badge-warning"
-                    : "badge-destructive"
-                }>
-                  {t.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
-{/* analytics section */}
-{activeTab === "analytics" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Platform Analytics</h1>
-
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {[
-        { label: "Total Farmers", value: "1,248" },
-        { label: "Total Businesses", value: "326" },
-        { label: "Orders", value: "5,820" },
-        { label: "Revenue", value: "₹1.8Cr" },
-      ].map((s) => (
-        <div key={s.label} className="stat-card">
-          <div className="text-xl font-bold">{s.value}</div>
-          <div className="text-xs text-muted-foreground">{s.label}</div>
+      {activeTab === "settings" && (
+        <div className="space-y-6 max-w-xl">
+          <h1 className="font-display text-2xl font-bold">Admin Settings</h1>
+          <div className="bg-card border border-border rounded-xl p-6 space-y-4">
+            <input type="text" placeholder="Platform Name" className="w-full px-4 py-2 border rounded-lg bg-background" />
+            <input type="email" placeholder="Support Email" className="w-full px-4 py-2 border rounded-lg bg-background" />
+            <button className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Save Settings</button>
+          </div>
         </div>
-      ))}
-    </div>
-  </div>
-)}
-{/* reports */}
-{activeTab === "reports" && (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Reports</h1>
-
-    <div className="grid md:grid-cols-3 gap-6">
-      {["Sales Report", "Farmer Activity", "Monthly Revenue"].map((r) => (
-        <div key={r} className="bg-card border border-border rounded-xl p-6 text-center">
-          <h3 className="font-semibold">{r}</h3>
-          <button className="mt-4 px-4 py-2 bg-primary text-white rounded-md text-sm">
-            Download PDF
-          </button>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
-{/* settings */}
-{activeTab === "settings" && (
-  <div className="space-y-6 max-w-xl">
-    <h1 className="font-display text-2xl font-bold">Admin Settings</h1>
-
-    <div className="bg-card border border-border rounded-xl p-6 space-y-4">
-      <input
-        type="text"
-        placeholder="Platform Name"
-        className="w-full px-4 py-2 border rounded-lg bg-background"
-      />
-      <input
-        type="email"
-        placeholder="Support Email"
-        className="w-full px-4 py-2 border rounded-lg bg-background"
-      />
-      <button className="px-6 py-2 bg-primary text-white rounded-lg">
-        Save Settings
-      </button>
-    </div>
-  </div>
-)}
+      )}
     </DashboardLayout>
   );
 };
+
+/* ─── Applications Management Section ─── */
+const ApplicationsSection = () => {
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string>("pending");
+  const [rejectNote, setRejectNote] = useState<Record<string, string>>({});
+  const [processing, setProcessing] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchApplications();
+  }, [filter]);
+
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const data = await userService.getPendingApplications(filter);
+      setApplications(data || []);
+    } catch (err) {
+      console.error("Failed to fetch applications:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAction = async (id: string, status: 'approved' | 'rejected') => {
+    setProcessing(id);
+    try {
+      const note = status === 'rejected' ? rejectNote[id] : undefined;
+      await userService.handleApplication(id, status, note);
+      setApplications((prev) => prev.filter((a) => a._id !== id));
+    } catch (err) {
+      console.error(`Failed to ${status}:`, err);
+    } finally {
+      setProcessing(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Seller & Buyer Applications</h1>
+          <p className="text-sm text-muted-foreground">Manage farmer and B2B approval requests</p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="flex gap-2">
+        {["pending", "approved", "rejected"].map((s) => (
+          <button
+            key={s}
+            onClick={() => setFilter(s)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition ${filter === s
+              ? s === "pending" ? "bg-yellow-100 text-yellow-800"
+                : s === "approved" ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+          >
+            {s} {s === "pending" && <span className="ml-1">({applications.length})</span>}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
+      ) : applications.length === 0 ? (
+        <div className="text-center py-20 text-gray-500">
+          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p>No {filter} applications found.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {applications.map((app) => (
+            <div key={app._id} className="bg-card border border-border rounded-xl p-5 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${app.role === "farmer" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
+                    {(app.name || "U")[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">{app.name}</h3>
+                    <span className={`px-2 py-0.5 text-xs rounded-full ${app.role === "farmer" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
+                      {app.role === "farmer" ? "🌾 Farmer — Apply to Sell" : "🏢 B2B — Bulk Purchase"}
+                    </span>
+                  </div>
+                </div>
+                <span className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${app.applicationStatus === 'pending' ? "bg-yellow-100 text-yellow-700" :
+                  app.applicationStatus === 'approved' ? "bg-green-100 text-green-700" :
+                    "bg-red-100 text-red-700"
+                  }`}>
+                  {app.applicationStatus}
+                </span>
+              </div>
+
+              {/* Details */}
+              <div className="grid sm:grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Mail className="w-3.5 h-3.5" /> {app.email}
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Phone className="w-3.5 h-3.5" /> {app.phone}
+                </div>
+                {app.businessName && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Building2 className="w-3.5 h-3.5" /> {app.businessName}
+                  </div>
+                )}
+                {app.farmLocation && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Wheat className="w-3.5 h-3.5" /> {app.farmLocation}
+                  </div>
+                )}
+                {app.address?.city && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="w-3.5 h-3.5" /> {app.address.street ? `${app.address.street}, ` : ""}{app.address.city}, {app.address.state} - {app.address.pincode}
+                  </div>
+                )}
+                {app.gstin && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <FileText className="w-3.5 h-3.5" /> GSTIN: {app.gstin}
+                  </div>
+                )}
+              </div>
+
+              {/* Rejection note */}
+              {app.applicationNote && (
+                <div className="text-sm bg-red-50 border border-red-100 rounded-lg p-2 text-red-700">
+                  Admin note: {app.applicationNote}
+                </div>
+              )}
+
+              {/* Actions */}
+              {filter === "pending" && (
+                <div className="flex items-center gap-3 pt-2 border-t">
+                  <button
+                    onClick={() => handleAction(app._id, "approved")}
+                    disabled={processing === app._id}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
+                  >
+                    {processing === app._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                    Approve
+                  </button>
+                  <div className="flex-1 flex items-center gap-2">
+                    <input
+                      placeholder="Rejection reason (optional)"
+                      value={rejectNote[app._id] || ""}
+                      onChange={(e) => setRejectNote({ ...rejectNote, [app._id]: e.target.value })}
+                      className="flex-1 px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-red-200 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => handleAction(app._id, "rejected")}
+                      disabled={processing === app._id}
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 transition"
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ─── Sub-sections ─── */
+const BusinessSection = ({ users, loading }: { users: any[]; loading: boolean }) => (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Business Accounts</h1>
+    {loading ? (
+      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
+    ) : users.length === 0 ? (
+      <div className="text-center py-20 text-gray-500">No business accounts found</div>
+    ) : (
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {users.map((b: any) => (
+          <div key={b._id} className="bg-card border border-border rounded-xl p-5 space-y-2">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold">{b.businessName || b.name}</h3>
+              <span className={`px-2.5 py-0.5 text-xs rounded-full ${b.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                {b.isVerified ? "Verified" : "Pending"}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">{b.email}</p>
+            <p className="text-sm">Phone: <span className="font-semibold">{b.phone || "—"}</span></p>
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+);
+
+const CustomerSection = ({ users, loading }: { users: any[]; loading: boolean }) => (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">Customers</h1>
+    {loading ? (
+      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
+    ) : (
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
+        <table className="w-full min-w-[800px]">
+          <thead className="bg-gray-50">
+            <tr>
+              {["Name", "Email", "Phone", "Joined", "Status"].map((h) => (
+                <th key={h} className="px-5 py-3 text-left text-xs text-gray-500">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((c: any) => (
+              <tr key={c._id} className="border-t hover:bg-gray-50">
+                <td className="px-5 py-3 font-medium">{c.name}</td>
+                <td className="px-5 py-3">{c.email}</td>
+                <td className="px-5 py-3">{c.phone || "—"}</td>
+                <td className="px-5 py-3 text-xs text-gray-500">{new Date(c.createdAt).toLocaleDateString("en-IN")}</td>
+                <td className="px-5 py-3">
+                  <span className={`px-2 py-0.5 text-xs rounded-full ${c.isBlocked ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+                    {c.isBlocked ? "Blocked" : "Active"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+);
+
+const TransactionSection = ({ payments, loading }: { payments: any[]; loading: boolean }) => (
+  <div className="space-y-6">
+    <h1 className="font-display text-2xl font-bold">All Transactions</h1>
+    {loading ? (
+      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
+    ) : (
+      <div className="bg-card border border-border rounded-xl overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              {["From", "To", "Amount", "Mode", "Date", "Status"].map((h) => (
+                <th key={h} className="px-5 py-3 text-left text-xs text-gray-500">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {payments.map((t: any) => (
+              <tr key={t._id} className="border-t hover:bg-gray-50">
+                <td className="px-5 py-3">{t.from?.name || "—"}</td>
+                <td className="px-5 py-3">{t.to?.name || "—"}</td>
+                <td className="px-5 py-3 font-semibold">₹{t.amount?.toLocaleString()}</td>
+                <td className="px-5 py-3 text-xs">{t.mode}</td>
+                <td className="px-5 py-3 text-xs">{new Date(t.createdAt).toLocaleDateString("en-IN")}</td>
+                <td className="px-5 py-3">
+                  <span className={`px-2 py-0.5 text-xs rounded-full ${t.status === "Completed" ? "bg-green-100 text-green-700" : t.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
+                    {t.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
+);
 
 export default AdminDashboard;

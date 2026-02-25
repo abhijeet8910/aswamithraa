@@ -1,47 +1,128 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { authService, RegisterData, LoginData } from "@/services/auth.service";
+import { getAccessToken, clearTokens } from "@/services/api";
 
 export type UserRole = "farmer" | "b2b" | "customer" | "admin" | null;
 
-interface User {
-  id: string;
+export interface UserAddress {
+  street?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+}
+
+export interface UserLocationHierarchy {
+  village?: string;
+  panchayat?: string;
+  mandal?: string;
+  district?: string;
+  state?: string;
+}
+
+export interface User {
+  _id: string;
   name: string;
+  email: string;
+  phone: string;
   role: UserRole;
-  email?: string;
-  phone?: string;
   avatar?: string;
+  // Farmer
+  farmLocation?: string;
+  farmerCategory?: "smallholder" | "bulk";
+  locationHierarchy?: UserLocationHierarchy;
+  // B2B
+  businessName?: string;
+  gstin?: string;
+  pan?: string;
+  contactPerson?: string;
+  officeAddress?: UserAddress;
+  warehouseAddress?: UserAddress;
+  // Shared financial
+  address?: UserAddress;
+  upiId?: string;
+  bankAccountNumber?: string;
+  ifscCode?: string;
+  // KYC
+  applicationStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  applicationNote?: string;
+  isVerified: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   role: UserRole;
-  login: (role: UserRole, name: string) => void;
-  logout: () => void;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (userData?: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (role: UserRole, name: string) => {
-    setUser({
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      role,
-    });
+  useEffect(() => {
+    const restoreSession = async () => {
+      const token = getAccessToken();
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const userData = await authService.getMe();
+        setUser(userData);
+      } catch {
+        clearTokens();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    restoreSession();
+  }, []);
+
+  const login = async (data: LoginData) => {
+    const result = await authService.login(data);
+    setUser(result.user as User);
   };
 
-  const logout = () => setUser(null);
+  const register = async (data: RegisterData) => {
+    const result = await authService.register(data);
+    setUser(result.user as User);
+  };
+
+  const logout = async () => {
+    await authService.logout();
+    setUser(null);
+  };
+
+  const updateUser = async (userData?: Partial<User>) => {
+    if (userData) {
+      setUser((prev) => (prev ? { ...prev, ...userData } : null));
+    } else {
+      try {
+        const freshUser = await authService.getMe();
+        setUser(freshUser);
+      } catch {
+        // ignore
+      }
+    }
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        role: user?.role ?? null,
-        login,
-        logout,
+        role: (user?.role as UserRole) ?? null,
         isAuthenticated: !!user,
+        isLoading,
+        login,
+        register,
+        logout,
+        updateUser,
       }}
     >
       {children}

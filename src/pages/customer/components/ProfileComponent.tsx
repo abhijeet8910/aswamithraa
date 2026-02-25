@@ -1,237 +1,283 @@
 import React, { useState, useEffect } from "react";
-
-type Address = {
-  street: string;
-  city: string;
-  state: string;
-  pincode: string;
-};
-
-type UserProfile = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: Address;
-};
-
-/* ========================= */
-/* MOCK API DATA             */
-/* ========================= */
-
-const mockUser: UserProfile = {
-  id: "USR001",
-  name: "Abhijeet Kumar",
-  email: "abhijeet@email.com",
-  phone: "+91 9876543210",
-  address: {
-    street: "Banjara Hills Road 12",
-    city: "Hyderabad",
-    state: "Telangana",
-    pincode: "500034",
-  },
-};
+import {
+  Loader2, LogOut, MapPin, Phone, Mail, Edit3, Save, X, Package,
+  CreditCard, ChevronRight, User as UserIcon, Settings, ShieldCheck
+} from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { userService } from "@/services/user.service";
+import { orderService } from "@/services/order.service";
 
 const ProfileComponent = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [editing, setEditing] = useState(false);
+  const { user: authUser, logout, updateUser } = useAuth();
   const [loading, setLoading] = useState(true);
-
-  /* ========================= */
-  /* FETCH USER (API Later)    */
-  /* ========================= */
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editAddress, setEditAddress] = useState(false);
+  const [orderStats, setOrderStats] = useState({ total: 0, totalSpent: 0 });
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [address, setAddress] = useState({
+    street: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
 
   useEffect(() => {
-    const fetchUser = async () => {
-      // later replace with API call
-      setTimeout(() => {
-        setUser(mockUser);
+    const fetchData = async () => {
+      try {
+        const [profileData, ordersData] = await Promise.all([
+          userService.getProfile(),
+          orderService.getAll({ limit: 200 }).catch(() => ({ orders: [] })),
+        ]);
+        setProfile({ name: profileData.name || "", email: profileData.email || "", phone: profileData.phone || "" });
+        setAddress({
+          street: profileData.address?.street || "",
+          city: profileData.address?.city || "",
+          state: profileData.address?.state || "",
+          pincode: profileData.address?.pincode || "",
+        });
+        const orders = ordersData?.orders || [];
+        setOrderStats({
+          total: orders.length,
+          totalSpent: orders.reduce((s: number, o: any) => s + (o.totalAmount || 0), 0),
+        });
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+      } finally {
         setLoading(false);
-      }, 500);
+      }
     };
-
-    fetchUser();
+    fetchData();
   }, []);
 
-  /* ========================= */
-  /* HANDLE INPUT CHANGE       */
-  /* ========================= */
+  const handleProfileChange = (field: string, value: string) => {
+    setProfile({ ...profile, [field]: value });
+  };
 
-  const handleChange = (field: string, value: string) => {
-    if (!user) return;
+  const handleAddressChange = (field: string, value: string) => {
+    setAddress({ ...address, [field]: value });
+  };
 
-    if (field in user.address) {
-      setUser({
-        ...user,
-        address: {
-          ...user.address,
-          [field]: value,
-        },
-      });
-    } else {
-      setUser({
-        ...user,
-        [field]: value,
-      });
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      await userService.updateProfile(profile);
+      setEditing(false);
+      setMessage("Profile updated!");
+      await updateUser();
+    } catch (err: any) {
+      setMessage(err.response?.data?.message || "Failed to update");
+    } finally {
+      setSaving(false);
     }
   };
 
-  /* ========================= */
-  /* SAVE PROFILE (API later)  */
-  /* ========================= */
-
-  const handleSave = async () => {
-    setEditing(false);
-
-    console.log("Updated User Data:", user);
-
-    // later
-    // await axios.put("/api/user/profile", user)
+  const handleSaveAddress = async () => {
+    setSaving(true);
+    setMessage("");
+    try {
+      await userService.updateProfile({ address });
+      setEditAddress(false);
+      setMessage("Address updated!");
+      await updateUser({ address });
+    } catch (err: any) {
+      setMessage(err.response?.data?.message || "Failed to update");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-3xl mx-auto py-10 text-center">
-        Loading profile...
-      </div>
-    );
-  }
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.location.href = "/";
+    } catch {
+      window.location.href = "/";
+    }
+  };
 
-  if (!user) return null;
+  if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>;
+
+  const initials = (profile.name || "U").split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="max-w-3xl mx-auto px-4 py-6 space-y-5">
+      {/* Cover + Avatar */}
+      <div className="relative">
+        <div className="h-32 rounded-2xl bg-gradient-to-r from-green-600 via-emerald-500 to-teal-500" />
+        <div className="absolute -bottom-10 left-6 flex items-end gap-4">
+          <div className="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg flex items-center justify-center text-2xl font-bold text-green-700 bg-gradient-to-br from-green-100 to-emerald-50">
+            {initials}
+          </div>
+        </div>
+      </div>
 
-      <h2 className="text-xl font-bold text-green-800">
-        My Profile
-      </h2>
+      {/* Name + Email under avatar */}
+      <div className="pl-28 pt-1">
+        <h2 className="text-xl font-bold text-gray-900">{profile.name}</h2>
+        <p className="text-sm text-gray-500">{profile.email}</p>
+      </div>
 
-      <div className="bg-white border border-green-100 rounded-xl p-5 shadow-sm space-y-5">
+      {/* Success/Error Message */}
+      {message && (
+        <div className={`p-3 rounded-lg text-sm ${message.includes("updated") || message.includes("Updated") ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"}`}>
+          {message}
+        </div>
+      )}
 
-        {/* NAME */}
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white border border-green-100 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            <Package className="w-5 h-5 text-green-700" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-gray-900">{orderStats.total}</p>
+            <p className="text-xs text-gray-500">Total Orders</p>
+          </div>
+        </div>
+        <div className="bg-white border border-green-100 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+            <CreditCard className="w-5 h-5 text-emerald-700" />
+          </div>
+          <div>
+            <p className="text-lg font-bold text-gray-900">₹{orderStats.totalSpent.toLocaleString()}</p>
+            <p className="text-xs text-gray-500">Total Spent</p>
+          </div>
+        </div>
+      </div>
 
-        <div>
-          <p className="text-sm text-gray-500">Full Name</p>
-
-          {editing ? (
-            <input
-              className="border rounded px-3 py-2 w-full"
-              value={user.name}
-              onChange={(e) =>
-                handleChange("name", e.target.value)
-              }
-            />
+      {/* Personal Info Card */}
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-green-50 bg-green-50/50">
+          <div className="flex items-center gap-2">
+            <UserIcon className="w-4 h-4 text-green-700" />
+            <span className="text-sm font-semibold text-green-800">Personal Information</span>
+          </div>
+          {!editing ? (
+            <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs text-green-600 hover:text-green-800 font-medium">
+              <Edit3 className="w-3 h-3" /> Edit
+            </button>
           ) : (
-            <p className="font-medium">{user.name}</p>
+            <div className="flex gap-2">
+              <button onClick={() => setEditing(false)} className="text-xs text-gray-500 hover:text-gray-700"><X className="w-4 h-4" /></button>
+            </div>
           )}
         </div>
 
-        {/* PHONE */}
+        <div className="p-5 space-y-4">
+          <div className="flex items-center gap-3">
+            <UserIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">Full Name</p>
+              {editing ? (
+                <input className="mt-0.5 w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" value={profile.name} onChange={(e) => handleProfileChange("name", e.target.value)} />
+              ) : (
+                <p className="font-medium text-sm">{profile.name}</p>
+              )}
+            </div>
+          </div>
 
-        <div>
-          <p className="text-sm text-gray-500">Phone Number</p>
+          <div className="flex items-center gap-3">
+            <Phone className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">Phone Number</p>
+              {editing ? (
+                <input className="mt-0.5 w-full px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" value={profile.phone} onChange={(e) => handleProfileChange("phone", e.target.value)} />
+              ) : (
+                <p className="font-medium text-sm">{profile.phone || "Not set"}</p>
+              )}
+            </div>
+          </div>
 
-          {editing ? (
-            <input
-              className="border rounded px-3 py-2 w-full"
-              value={user.phone}
-              onChange={(e) =>
-                handleChange("phone", e.target.value)
-              }
-            />
+          <div className="flex items-center gap-3">
+            <Mail className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs text-gray-500">Email</p>
+              <p className="font-medium text-sm">{profile.email}</p>
+            </div>
+          </div>
+
+          {editing && (
+            <button onClick={handleSaveProfile} disabled={saving} className="w-full mt-2 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+              {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-4 h-4" /> Save Changes</>}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Delivery Address Card */}
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-green-50 bg-green-50/50">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-green-700" />
+            <span className="text-sm font-semibold text-green-800">Delivery Address</span>
+          </div>
+          {!editAddress ? (
+            <button onClick={() => setEditAddress(true)} className="flex items-center gap-1 text-xs text-green-600 hover:text-green-800 font-medium">
+              <Edit3 className="w-3 h-3" /> {address.city ? "Edit" : "Add"}
+            </button>
           ) : (
-            <p className="font-medium">{user.phone}</p>
+            <button onClick={() => setEditAddress(false)} className="text-xs text-gray-500 hover:text-gray-700"><X className="w-4 h-4" /></button>
           )}
         </div>
 
-        {/* EMAIL */}
-
-        <div>
-          <p className="text-sm text-gray-500">Email</p>
-          <p className="font-medium">{user.email}</p>
-        </div>
-
-        {/* ADDRESS */}
-
-        <div className="space-y-2">
-
-          <p className="text-sm text-gray-500">
-            Delivery Address
-          </p>
-
-          {editing ? (
-            <div className="grid gap-2">
-
-              <input
-                className="border rounded px-3 py-2"
-                value={user.address.street}
-                onChange={(e) =>
-                  handleChange("street", e.target.value)
-                }
-                placeholder="Street"
-              />
-
-              <input
-                className="border rounded px-3 py-2"
-                value={user.address.city}
-                onChange={(e) =>
-                  handleChange("city", e.target.value)
-                }
-                placeholder="City"
-              />
-
-              <input
-                className="border rounded px-3 py-2"
-                value={user.address.state}
-                onChange={(e) =>
-                  handleChange("state", e.target.value)
-                }
-                placeholder="State"
-              />
-
-              <input
-                className="border rounded px-3 py-2"
-                value={user.address.pincode}
-                onChange={(e) =>
-                  handleChange("pincode", e.target.value)
-                }
-                placeholder="Pincode"
-              />
-
+        <div className="p-5">
+          {editAddress ? (
+            <div className="space-y-3">
+              <input className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" placeholder="Street / Area" value={address.street} onChange={(e) => handleAddressChange("street", e.target.value)} />
+              <div className="grid grid-cols-2 gap-3">
+                <input className="px-3 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" placeholder="City" value={address.city} onChange={(e) => handleAddressChange("city", e.target.value)} />
+                <input className="px-3 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" placeholder="State" value={address.state} onChange={(e) => handleAddressChange("state", e.target.value)} />
+              </div>
+              <input className="w-full px-3 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-green-300 text-sm" placeholder="Pincode" value={address.pincode} onChange={(e) => handleAddressChange("pincode", e.target.value)} maxLength={6} />
+              <button onClick={handleSaveAddress} disabled={saving} className="w-full py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50">
+                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-4 h-4" /> Save Address</>}
+              </button>
+            </div>
+          ) : address.city ? (
+            <div className="flex items-start gap-3">
+              <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                {address.street && <p className="text-sm text-gray-800">{address.street}</p>}
+                <p className="text-sm text-gray-800">{address.city}, {address.state}</p>
+                <p className="text-sm text-gray-500">{address.pincode}</p>
+              </div>
             </div>
           ) : (
-            <p className="font-medium">
-              {user.address.street}, {user.address.city},{" "}
-              {user.address.state} - {user.address.pincode}
-            </p>
+            <p className="text-sm text-gray-500 text-center py-2">No address set. Add your delivery address.</p>
           )}
-
         </div>
-
       </div>
 
-      {/* ACTION BUTTON */}
-
-      <div className="flex gap-3">
-
-        {!editing ? (
-          <button
-            onClick={() => setEditing(true)}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-          >
-            Edit Profile
-          </button>
-        ) : (
-          <button
-            onClick={handleSave}
-            className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-          >
-            Save Profile
-          </button>
-        )}
-
+      {/* Menu Items */}
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm divide-y divide-green-50">
+        {[
+          { icon: ShieldCheck, label: "Account Verified", value: authUser?.isVerified ? "Yes" : "Pending", color: authUser?.isVerified ? "text-green-600" : "text-yellow-600" },
+        ].map(({ icon: Icon, label, value, color }) => (
+          <div key={label} className="flex items-center justify-between px-5 py-3.5">
+            <div className="flex items-center gap-3">
+              <Icon className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-700">{label}</span>
+            </div>
+            <span className={`text-sm font-medium ${color}`}>{value}</span>
+          </div>
+        ))}
       </div>
 
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 text-red-600 font-semibold text-sm hover:bg-red-50 transition"
+      >
+        <LogOut className="w-4 h-4" /> Logout
+      </button>
     </div>
   );
 };

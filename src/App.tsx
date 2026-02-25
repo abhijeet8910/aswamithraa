@@ -48,6 +48,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { CartProvider } from "@/context/CartContext";
 
 import LandingPage from "@/pages/LandingPage";
 import FarmerDashboard from "@/pages/farmer/FarmerDashboard";
@@ -78,7 +79,7 @@ const AppRoutes = () => {
       {/* Landing */}
       <Route path="/" element={<LandingPage />} />
       {/* contact page */}
-      <Route path="/contact" element={<Contact/>} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* Auth Pages */}
       <Route
@@ -143,9 +144,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
+        <CartProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </CartProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
