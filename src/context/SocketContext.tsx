@@ -37,8 +37,8 @@ const SocketContext = createContext<SocketContextType>({ socket: null });
 export const useSocket = () => useContext(SocketContext);
 
 // --- The backend URL for Socket.io (same as API but without /api/v1) ---
-const SOCKET_URL = import.meta.env.VITE_API_URL
-    ? import.meta.env.VITE_API_URL.replace("/api/v1", "")
+const SOCKET_URL = import.meta.env.PROD
+    ? "https://backendofaswamithra-production.up.railway.app"
     : "http://localhost:5000";
 
 /**
