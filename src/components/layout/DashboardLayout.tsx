@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import NotificationDropdown from "./NotificationDropdown";
 
 interface NavItem {
   label: string;
@@ -191,10 +192,8 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <Bell className="w-4 h-4 text-muted-foreground" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full" style={{ background: "hsl(var(--destructive))" }} />
-            </button>
+            {/* Notification Bell with Dropdown */}
+            <NotificationDropdown />
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: "hsl(var(--primary))", color: "hsl(var(--primary-foreground))" }}>
               {user?.name?.charAt(0).toUpperCase()}
             </div>

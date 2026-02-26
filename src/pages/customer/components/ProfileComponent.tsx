@@ -256,19 +256,17 @@ const ProfileComponent = () => {
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="bg-white border border-green-100 rounded-xl shadow-sm divide-y divide-green-50">
-        {[
-          { icon: ShieldCheck, label: "Account Verified", value: authUser?.isVerified ? "Yes" : "Pending", color: authUser?.isVerified ? "text-green-600" : "text-yellow-600" },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="flex items-center justify-between px-5 py-3.5">
-            <div className="flex items-center gap-3">
-              <Icon className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-700">{label}</span>
-            </div>
-            <span className={`text-sm font-medium ${color}`}>{value}</span>
+      {/* Account Status */}
+      <div className="bg-white border border-green-100 rounded-xl shadow-sm">
+        <div className="flex items-center justify-between px-5 py-3.5">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="w-4 h-4 text-green-600" />
+            <span className="text-sm text-gray-700">Account Status</span>
           </div>
-        ))}
+          <span className="text-sm font-medium text-green-600 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Active
+          </span>
+        </div>
       </div>
 
       {/* Logout */}

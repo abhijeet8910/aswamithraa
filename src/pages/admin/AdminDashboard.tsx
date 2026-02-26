@@ -1,12 +1,36 @@
-import React, { useState, useEffect } from "react";
+/**
+ * AdminDashboard — Main Admin Control Panel
+ * ============================================
+ * This is the primary dashboard for admin users. It provides:
+ * - Platform overview with stats cards and charts
+ * - Farmer and B2B application management (NOT customers)
+ * - Customer list with block/unblock capability
+ * - Business accounts view, delivery management, transactions
+ * - Analytics and reports tabs
+ *
+ * ARCHITECTURE:
+ * Sub-sections are extracted into separate components in ./component/:
+ * - ApplicationsSection: Farmer/B2B approval workflow
+ * - BusinessSection: B2B accounts grid
+ * - CustomerSection: Customer table with Block/Unblock button
+ * - TransactionSection: All payments table
+ * - DeliveryManagement: Delivery logistics
+ * - Farmers: Detailed farmer management
+ */
+
+import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
   Users, Wheat, Building2, CreditCard, TrendingUp, ArrowUpRight,
-  CheckCircle, XCircle, Clock, Loader2, FileText, MapPin, Phone, Mail
+  CheckCircle, XCircle, Clock, Loader2
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import DeliveryManagement from "./component/DeliveryManagement";
 import Farmers from "./component/Farmers";
+import ApplicationsSection from "./component/ApplicationsSection";
+import BusinessSection from "./component/BusinessSection";
+import CustomerSection from "./component/CustomerSection";
+import TransactionSection from "./component/TransactionSection";
 import { userService } from "@/services/user.service";
 import { orderService } from "@/services/order.service";
 import { paymentService } from "@/services/payment.service";
@@ -52,7 +76,8 @@ const AdminDashboard: React.FC = () => {
         const volume = orders.reduce((s: number, o: any) => s + (o.totalAmount || 0), 0);
 
         setStats({ farmers, businesses, customers, volume });
-        setPendingUsers(users.filter((u: any) => !u.isVerified).slice(0, 5));
+        // --- FIX: Only show farmer & B2B in pending approvals, NOT customers ---
+        setPendingUsers(users.filter((u: any) => !u.isVerified && (u.role === "farmer" || u.role === "b2b")).slice(0, 5));
         setAllUsers(users);
         setRecentPayments(payments.slice(0, 5));
         setAllPayments(payments);
@@ -78,6 +103,20 @@ const AdminDashboard: React.FC = () => {
       }
     };
     fetchDashboard();
+  }, []);
+
+  /**
+   * Callback passed to CustomerSection to refresh the user list
+   * after a block/unblock action.
+   */
+  const refreshUsers = useCallback(async () => {
+    try {
+      const usersRes = await userService.getAllUsers({ limit: 200 }).catch(() => ({ users: [] }));
+      const users = usersRes?.users || [];
+      setAllUsers(users);
+    } catch (err) {
+      console.error("Failed to refresh users:", err);
+    }
   }, []);
 
   const handleVerify = async (id: string) => {
@@ -269,8 +308,13 @@ const AdminDashboard: React.FC = () => {
         <BusinessSection users={allUsers.filter((u: any) => u.role === "b2b")} loading={loading} />
       )}
 
+      {/* --- Customers Tab: Block/Unblock (NOT approve/reject) --- */}
       {activeTab === "customers" && (
-        <CustomerSection users={allUsers.filter((u: any) => u.role === "customer")} loading={loading} />
+        <CustomerSection
+          users={allUsers.filter((u: any) => u.role === "customer")}
+          loading={loading}
+          onBlockToggle={refreshUsers}
+        />
       )}
 
       {activeTab === "delivery" && <DeliveryManagement />}
@@ -327,273 +371,5 @@ const AdminDashboard: React.FC = () => {
     </DashboardLayout>
   );
 };
-
-/* ─── Applications Management Section ─── */
-const ApplicationsSection = () => {
-  const [applications, setApplications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("pending");
-  const [rejectNote, setRejectNote] = useState<Record<string, string>>({});
-  const [processing, setProcessing] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchApplications();
-  }, [filter]);
-
-  const fetchApplications = async () => {
-    setLoading(true);
-    try {
-      const data = await userService.getPendingApplications(filter);
-      setApplications(data || []);
-    } catch (err) {
-      console.error("Failed to fetch applications:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAction = async (id: string, status: 'approved' | 'rejected') => {
-    setProcessing(id);
-    try {
-      const note = status === 'rejected' ? rejectNote[id] : undefined;
-      await userService.handleApplication(id, status, note);
-      setApplications((prev) => prev.filter((a) => a._id !== id));
-    } catch (err) {
-      console.error(`Failed to ${status}:`, err);
-    } finally {
-      setProcessing(null);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-display text-2xl font-bold">Seller & Buyer Applications</h1>
-          <p className="text-sm text-muted-foreground">Manage farmer and B2B approval requests</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-2">
-        {["pending", "approved", "rejected"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition ${filter === s
-              ? s === "pending" ? "bg-yellow-100 text-yellow-800"
-                : s === "approved" ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-          >
-            {s} {s === "pending" && <span className="ml-1">({applications.length})</span>}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
-      ) : applications.length === 0 ? (
-        <div className="text-center py-20 text-gray-500">
-          <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p>No {filter} applications found.</p>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {applications.map((app) => (
-            <div key={app._id} className="bg-card border border-border rounded-xl p-5 space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${app.role === "farmer" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
-                    {(app.name || "U")[0].toUpperCase()}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{app.name}</h3>
-                    <span className={`px-2 py-0.5 text-xs rounded-full ${app.role === "farmer" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"}`}>
-                      {app.role === "farmer" ? "🌾 Farmer — Apply to Sell" : "🏢 B2B — Bulk Purchase"}
-                    </span>
-                  </div>
-                </div>
-                <span className={`px-2.5 py-0.5 text-xs rounded-full font-medium ${app.applicationStatus === 'pending' ? "bg-yellow-100 text-yellow-700" :
-                  app.applicationStatus === 'approved' ? "bg-green-100 text-green-700" :
-                    "bg-red-100 text-red-700"
-                  }`}>
-                  {app.applicationStatus}
-                </span>
-              </div>
-
-              {/* Details */}
-              <div className="grid sm:grid-cols-2 gap-2 text-sm">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Mail className="w-3.5 h-3.5" /> {app.email}
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <Phone className="w-3.5 h-3.5" /> {app.phone}
-                </div>
-                {app.businessName && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Building2 className="w-3.5 h-3.5" /> {app.businessName}
-                  </div>
-                )}
-                {app.farmLocation && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Wheat className="w-3.5 h-3.5" /> {app.farmLocation}
-                  </div>
-                )}
-                {app.address?.city && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin className="w-3.5 h-3.5" /> {app.address.street ? `${app.address.street}, ` : ""}{app.address.city}, {app.address.state} - {app.address.pincode}
-                  </div>
-                )}
-                {app.gstin && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <FileText className="w-3.5 h-3.5" /> GSTIN: {app.gstin}
-                  </div>
-                )}
-              </div>
-
-              {/* Rejection note */}
-              {app.applicationNote && (
-                <div className="text-sm bg-red-50 border border-red-100 rounded-lg p-2 text-red-700">
-                  Admin note: {app.applicationNote}
-                </div>
-              )}
-
-              {/* Actions */}
-              {filter === "pending" && (
-                <div className="flex items-center gap-3 pt-2 border-t">
-                  <button
-                    onClick={() => handleAction(app._id, "approved")}
-                    disabled={processing === app._id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 transition"
-                  >
-                    {processing === app._id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                    Approve
-                  </button>
-                  <div className="flex-1 flex items-center gap-2">
-                    <input
-                      placeholder="Rejection reason (optional)"
-                      value={rejectNote[app._id] || ""}
-                      onChange={(e) => setRejectNote({ ...rejectNote, [app._id]: e.target.value })}
-                      className="flex-1 px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-red-200 focus:outline-none"
-                    />
-                    <button
-                      onClick={() => handleAction(app._id, "rejected")}
-                      disabled={processing === app._id}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg font-medium text-sm bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 transition"
-                    >
-                      <XCircle className="w-3.5 h-3.5" /> Reject
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-/* ─── Sub-sections ─── */
-const BusinessSection = ({ users, loading }: { users: any[]; loading: boolean }) => (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Business Accounts</h1>
-    {loading ? (
-      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>
-    ) : users.length === 0 ? (
-      <div className="text-center py-20 text-gray-500">No business accounts found</div>
-    ) : (
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.map((b: any) => (
-          <div key={b._id} className="bg-card border border-border rounded-xl p-5 space-y-2">
-            <div className="flex justify-between items-center">
-              <h3 className="font-semibold">{b.businessName || b.name}</h3>
-              <span className={`px-2.5 py-0.5 text-xs rounded-full ${b.isVerified ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
-                {b.isVerified ? "Verified" : "Pending"}
-              </span>
-            </div>
-            <p className="text-xs text-gray-500">{b.email}</p>
-            <p className="text-sm">Phone: <span className="font-semibold">{b.phone || "—"}</span></p>
-          </div>
-        ))}
-      </div>
-    )}
-  </div>
-);
-
-const CustomerSection = ({ users, loading }: { users: any[]; loading: boolean }) => (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">Customers</h1>
-    {loading ? (
-      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
-    ) : (
-      <div className="bg-card border border-border rounded-xl overflow-x-auto">
-        <table className="w-full min-w-[800px]">
-          <thead className="bg-gray-50">
-            <tr>
-              {["Name", "Email", "Phone", "Joined", "Status"].map((h) => (
-                <th key={h} className="px-5 py-3 text-left text-xs text-gray-500">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((c: any) => (
-              <tr key={c._id} className="border-t hover:bg-gray-50">
-                <td className="px-5 py-3 font-medium">{c.name}</td>
-                <td className="px-5 py-3">{c.email}</td>
-                <td className="px-5 py-3">{c.phone || "—"}</td>
-                <td className="px-5 py-3 text-xs text-gray-500">{new Date(c.createdAt).toLocaleDateString("en-IN")}</td>
-                <td className="px-5 py-3">
-                  <span className={`px-2 py-0.5 text-xs rounded-full ${c.isBlocked ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                    {c.isBlocked ? "Blocked" : "Active"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
-);
-
-const TransactionSection = ({ payments, loading }: { payments: any[]; loading: boolean }) => (
-  <div className="space-y-6">
-    <h1 className="font-display text-2xl font-bold">All Transactions</h1>
-    {loading ? (
-      <div className="flex items-center justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-green-600" /></div>
-    ) : (
-      <div className="bg-card border border-border rounded-xl overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              {["From", "To", "Amount", "Mode", "Date", "Status"].map((h) => (
-                <th key={h} className="px-5 py-3 text-left text-xs text-gray-500">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((t: any) => (
-              <tr key={t._id} className="border-t hover:bg-gray-50">
-                <td className="px-5 py-3">{t.from?.name || "—"}</td>
-                <td className="px-5 py-3">{t.to?.name || "—"}</td>
-                <td className="px-5 py-3 font-semibold">₹{t.amount?.toLocaleString()}</td>
-                <td className="px-5 py-3 text-xs">{t.mode}</td>
-                <td className="px-5 py-3 text-xs">{new Date(t.createdAt).toLocaleDateString("en-IN")}</td>
-                <td className="px-5 py-3">
-                  <span className={`px-2 py-0.5 text-xs rounded-full ${t.status === "Completed" ? "bg-green-100 text-green-700" : t.status === "Pending" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
-                    {t.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )}
-  </div>
-);
 
 export default AdminDashboard;

@@ -1,47 +1,3 @@
-// import { Toaster } from "@/components/ui/toaster";
-// import { Toaster as Sonner } from "@/components/ui/sonner";
-// import { TooltipProvider } from "@/components/ui/tooltip";
-// import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import { AuthProvider, useAuth } from "@/context/AuthContext";
-// import LandingPage from "@/pages/LandingPage";
-// import FarmerDashboard from "@/pages/farmer/FarmerDashboard";
-// import B2BDashboard from "@/pages/b2b/B2BDashboard";
-// import CustomerDashboard from "@/pages/customer/CustomerDashboard";
-// import AdminDashboard from "@/pages/admin/AdminDashboard";
-// import NotFound from "./pages/NotFound";
-
-// const queryClient = new QueryClient();
-
-// const AppRouter = () => {
-//   const { isAuthenticated, role } = useAuth();
-
-//   if (!isAuthenticated) {
-//     return <LandingPage />;
-//   }
-
-//   if (role === "farmer") return <FarmerDashboard />;
-//   if (role === "b2b") return <B2BDashboard />;
-//   if (role === "customer") return <CustomerDashboard />;
-//   if (role === "admin") return <AdminDashboard />;
-
-//   return <LandingPage />;
-// };
-
-// const App = () => (
-//   <QueryClientProvider client={queryClient}>
-//     <TooltipProvider>
-//       <Toaster />
-//       <Sonner />
-//       <AuthProvider>
-//         <AppRouter />
-//       </AuthProvider>
-//     </TooltipProvider>
-//   </QueryClientProvider>
-// );
-
-// export default App;
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -49,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { SocketProvider } from "@/context/SocketContext";
 
 import LandingPage from "@/pages/LandingPage";
 import FarmerDashboard from "@/pages/farmer/FarmerDashboard";
@@ -59,19 +16,26 @@ import AuthForm from "@/components/auth/AuthForm";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./pages/landingPage/ProtectedRoutes";
 import Contact from "./pages/landingPage/Contact";
+import ForgotPassword from "./pages/landingPage/ForgotPassword";
+import ResetPassword from "./pages/landingPage/ResetPassword";
 
-const queryClient = new QueryClient();
+// --- Optimized QueryClient for fast data fetching ---
+// staleTime: Data stays "fresh" for 30s — prevents redundant API calls
+// gcTime: Cache kept for 5 minutes even after components unmount
+// refetchOnWindowFocus: Auto-refresh when user returns to tab
+// retry: Only retry once on failure (don't hammer the server)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30 * 1000,       // 30 seconds — fast without excessive calls
+      gcTime: 5 * 60 * 1000,      // 5 minutes cache retention
+      refetchOnWindowFocus: true,  // Refresh when tab regains focus
+      retry: 1,                    // One retry on failure
+      refetchOnMount: true,        // Always check on mount
+    },
+  },
+});
 
-// 🔒 Protected Route
-// const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-//   const { isAuthenticated } = useAuth();
-
-//   if (!isAuthenticated) {
-//     return <Navigate to="/" replace />;
-//   }
-
-//   return children;
-// };
 
 const AppRoutes = () => {
   return (
@@ -80,6 +44,10 @@ const AppRoutes = () => {
       <Route path="/" element={<LandingPage />} />
       {/* contact page */}
       <Route path="/contact" element={<Contact />} />
+
+      {/* Password Reset */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Auth Pages */}
       <Route
@@ -144,11 +112,13 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <CartProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </CartProvider>
+        <SocketProvider>
+          <CartProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </CartProvider>
+        </SocketProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

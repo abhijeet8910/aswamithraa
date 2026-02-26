@@ -348,6 +348,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ role, onBack }) => {
               </div>
             </div>
 
+            {/* Forgot Password link (only on login mode) */}
+            {mode === "login" && (
+              <div className="text-right">
+                <a href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition">
+                  Forgot Password?
+                </a>
+              </div>
+            )}
+
             <Button
               type="submit"
               className="w-full py-3 font-semibold mt-2"
