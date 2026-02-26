@@ -45,15 +45,15 @@ const TransactionSection: React.FC<TransactionSectionProps> = ({ payments, loadi
                                 <td className="px-5 py-3">{t.from?.name || "—"}</td>
                                 <td className="px-5 py-3">{t.to?.name || "—"}</td>
                                 <td className="px-5 py-3 font-semibold">₹{t.amount?.toLocaleString()}</td>
-                                <td className="px-5 py-3 text-xs">{t.mode}</td>
+                                <td className="px-5 py-3 text-xs">{t.paymentMode}</td>
                                 <td className="px-5 py-3 text-xs">
                                     {new Date(t.createdAt).toLocaleDateString("en-IN")}
                                 </td>
                                 {/* --- Status Badge --- */}
                                 <td className="px-5 py-3">
                                     <span className={`px-2 py-0.5 text-xs rounded-full ${t.status === "Completed" ? "bg-green-100 text-green-700" :
-                                            t.status === "Pending" ? "bg-yellow-100 text-yellow-700" :
-                                                "bg-red-100 text-red-700"
+                                        t.status === "Pending" ? "bg-yellow-100 text-yellow-700" :
+                                            "bg-red-100 text-red-700"
                                         }`}>
                                         {t.status}
                                     </span>

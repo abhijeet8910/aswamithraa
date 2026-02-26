@@ -65,9 +65,11 @@ const AdminDashboard: React.FC = () => {
           productService.getAll({ limit: 200 }).catch(() => ({ products: [] })),
         ]);
 
+        console.log("Admin Dashboard API Responses:", { usersRes, ordersRes, paymentsRes, productsRes });
+
         const users = usersRes?.users || [];
         const orders = ordersRes?.orders || [];
-        const payments = paymentsRes?.payments || [];
+        const payments = paymentsRes?.transactions || []; // from /transactions endpoint
         const products = productsRes?.products || [];
 
         const farmers = users.filter((u: any) => u.role === "farmer").length;
@@ -137,8 +139,18 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const fmt = (n: number) => n >= 10000000 ? `₹${(n / 10000000).toFixed(2)}Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(2)}L` : `₹${n.toLocaleString()}`;
-  const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+  const fmt = (n: number | undefined | null) => {
+    const safeN = Number(n) || 0;
+    return safeN >= 10000000 ? `₹${(safeN / 10000000).toFixed(2)}Cr` : safeN >= 100000 ? `₹${(safeN / 100000).toFixed(2)}L` : `₹${safeN.toLocaleString()}`;
+  };
+  const fmtDate = (d: string) => {
+    try {
+      if (!d) return "—";
+      return new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+    } catch {
+      return "—";
+    }
+  };
 
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>

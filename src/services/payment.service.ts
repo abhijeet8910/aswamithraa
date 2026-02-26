@@ -1,23 +1,27 @@
 import api from "./api";
 
 export const paymentService = {
-    create: async (data: any) => {
-        const res = await api.post("/payments", data);
+    /** Create a Razorpay order (or dummy) for an internal order */
+    createOrder: async (orderId: string) => {
+        const res = await api.post("/payments/create-order", { orderId });
         return res.data.data;
     },
 
-    getAll: async (params: { status?: string; page?: number; limit?: number } = {}) => {
-        const res = await api.get("/payments", { params });
-        return res.data.data; // { payments, pagination }
-    },
-
-    getById: async (id: string) => {
-        const res = await api.get(`/payments/${id}`);
+    /** Verify payment after Razorpay checkout completes */
+    verifyPayment: async (data: {
+        orderId: string;
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    }) => {
+        const res = await api.post("/payments/verify", data);
         return res.data.data;
     },
 
-    getStats: async () => {
-        const res = await api.get("/payments/stats");
+    /** Fetch all transactions (for admin) */
+    getAll: async (params?: { limit?: number; page?: number; status?: string }) => {
+        // Fallback to transactions endpoint if /payments doesn't have a GET route yet
+        const res = await api.get("/transactions", { params }).catch(() => api.get("/payments", { params }));
         return res.data.data;
     },
 };

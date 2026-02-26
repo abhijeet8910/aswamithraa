@@ -213,7 +213,7 @@ export default function CustomerDashboard() {
         )}
 
         {activeTab === "orders" && <OrdersComponent />}
-        {activeTab === "cart" && <CartComponent />}
+        {activeTab === "cart" && <CartComponent onSwitchTab={setActiveTab} />}
         {activeTab === "profile" && <ProfileComponent />}
       </div>
 

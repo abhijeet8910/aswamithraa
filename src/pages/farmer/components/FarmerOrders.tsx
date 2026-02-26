@@ -12,6 +12,7 @@ type Order = {
   totalAmount: number;
   status: OrderStatus;
   paymentStatus: string;
+  paymentMode: string;
   shippingAddress: { street: string; city: string; state: string; pincode: string; phone: string };
   notes?: string;
   createdAt: string;
@@ -187,7 +188,8 @@ const FarmerOrders = () => {
               </ul>
               <p><b>Total:</b> ₹{selectedOrder.totalAmount.toLocaleString()}</p>
               <p><b>Date:</b> {formatDate(selectedOrder.createdAt)}</p>
-              <p><b>Payment:</b> {selectedOrder.paymentStatus}</p>
+              <p><b>Payment Status:</b> {selectedOrder.paymentStatus}</p>
+              <p><b>Payment Mode:</b> {selectedOrder.paymentMode}</p>
               <p><b>Shipping:</b> {selectedOrder.shippingAddress?.street}, {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.state} - {selectedOrder.shippingAddress?.pincode}</p>
               {selectedOrder.notes && <p><b>Notes:</b> {selectedOrder.notes}</p>}
               <div className="flex items-center gap-2">

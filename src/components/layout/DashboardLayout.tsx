@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAuth, UserRole } from "@/context/AuthContext";
+import { useNotifications } from "@/hooks/queries/useNotifications";
 import {
   LayoutDashboard, Package, ShoppingCart, CreditCard, Bell, Settings,
   LogOut, Menu, X, TrendingUp, Users, FileText, BarChart3, Truck,
@@ -85,11 +86,17 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, onTabChange }) => {
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const role = user?.role ?? "farmer";
-  const navItems = roleNavMap[role] || farmerNav;
-  const RoleIcon = roleIcons[role] || Wheat;
+  const { data } = useNotifications();
+
+  if (!user || !role) return null;
+
+  const navItems = roleNavMap[role] || [];
+  const RoleIcon = roleIcons[role] || UserCircle;
+
+  const notifications = data?.notifications || data || [];
+  const unreadCount = notifications.filter((n: any) => !n.isRead).length;
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -153,9 +160,9 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, activeTab, 
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
                 <span className="text-sm">{item.label}</span>
-                {item.id === "notifications" && (
+                {item.id === "notifications" && unreadCount > 0 && (
                   <span className="ml-auto text-xs px-1.5 py-0.5 rounded-full font-bold" style={{ background: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }}>
-                    3
+                    {unreadCount}
                   </span>
                 )}
               </button>
